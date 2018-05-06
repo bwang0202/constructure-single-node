@@ -12,3 +12,5 @@ class MatchWorkersConstants:
 	personal = 0.2
 
 class MatchTeamWorkerConstants:
+	job = 0.5
+	teammates = 0.5

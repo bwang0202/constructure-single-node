@@ -72,6 +72,17 @@ CREATE TABLE Speciality (
     CHECK (length(name) > 0)
 );
 
+# TODO: requires cert ?
+CREATE TABLE TeamNeedsSpeciality (
+    speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
+    team_id INTEGER NOT NULL REFERENCES Team(team_id),
+    count INTEGER NOT NULL DEFAULT 1,
+    --
+    UNIQUE (team_id, speciality_id),
+    CHECK (count > 0)
+)
+
+
 -- certificate must be tied to a speciality
 -- 六级木匠 （相当于中级知识分子）
 CREATE TABLE Certificate (
@@ -112,7 +123,7 @@ CREATE TABLE Projects (
 );
 
 -- position 1, 2, 3 means worker, mid-leader, big-leader for now
--- some big-leader may not have a clear spciality during this project
+-- some big-leader may not have a clear speciality during this project
 CREATE TABLE ParticipateProject (
     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
     team_id INTEGER NOT NULL REFERENCES Team(team_id),

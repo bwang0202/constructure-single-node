@@ -11,30 +11,6 @@ def longest_common_prefix(seq1, seq2):
     return seq1[:start]
 
 class SqliteDatabaseConnection(object):
-    """
-    **Case 1**: You want to run a single query in a transaction
-
-    Just use conn.execute()
-
-    **Case 2**: You want to run > 1 queries in a transaction.
-    In this case, structure your code as follows
-
-    try:
-        with ConfigDatabaseConnection as conn
-        conn.begin()
-        try
-            conn.execute(query1)
-            conn.execute(query2)
-            ...
-            conn.execute(quern)
-            conn.commit() // no error, lets commit
-        exception as e:
-            conn.rollback() //error during query processing. Even commit() might throw an error
-    except CipherBucketOpenDatabaseError as dberr:
-        log error -- this was error while opening db by new conn() or error in begin()
-
-    """
-
     def __init__(self, db_path, read_only=True):
         super(SqliteDatabaseConnection, self).__init__()
         self._conn = None
@@ -85,8 +61,88 @@ class SqliteDatabaseConnection(object):
     def lastrowid(self):
         return self._conn.last_insert_rowid();
 
+class DatabaseConnection(SqliteDatabaseConnection):
+    def __init__(self, read_only=True):
+        super(DatabaseConnection, self).__init__(config.db_path, read_only)
+
+def get_worker_speciality(worker_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT speciality_id, name
+            FROM WorkerHasSpeciality
+            JOIN Speciality USING (speciality_id)
+            WHERE worker_id = ?
+            """, (worker_id, ))
+
+def get_worker_cert(worker_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT cert_id, name, level, achieved
+            FROM WorkerHasCert
+            JOIN Certificate USING (cert_id)
+            WHERE worker_id = ?
+            """)
 
 def get_worker_info(worker_id):
+    with DatabaseConnection() as conn:
+        conn.execute("""
+            SELECT Workers.name, age, work_age, education,
+                   (SELECT Places.name FROM Places WHERE Places.place_id = Workers.place_id)
+            FROM Workers
+            WHERE worker_id = ?
+            LIMIT 1
+            """, (worker_id, ))[0] + (get_worker_speciality(worker_id), get_worker_cert(worker_id))
 
-def get_workers_experience(worker_id1, worker_id2):
-	
+def get_workers_common_experience(worker_id1, worker_id2):
+
+    SELECT count(*)
+    FROM WorkerPartOfTeam a
+    JOIN WorkerPartOfTeam b ON (a.team_id = b.team_id)
+    WHERE a.worker_id = ? AND b.worker_id = ?
+    AND ((a.ends is NULL AND b.ends is NULL)
+        OR (a.ends is NULL AND a.starts > b.ends)
+        OR (b.ends is NULL AND b.starts > a.ends)
+        OR a.ends > b.starts
+        OR b.ends > a.starts)
+
+    SELECT count(*)
+    FROM WorkerPartOfTeam
+    WHERE worker_id = ?
+
+    SELECT count(*)
+    FROM ParticipateProject a
+    JOIN ParticipateProject b ON (a.project_id = b.project_id)
+    WHERE a.worker_id = ? AND b.worker_id = ?
+    AND a.team_id <> b.team_id # DONT double count
+    AND ((a.ends is NULL AND b.ends is NULL)
+        OR (a.ends is NULL AND a.starts > b.ends)
+        OR (b.ends is NULL AND b.starts > a.ends)
+        OR a.ends > b.starts
+        OR b.ends > a.starts)
+
+    SELECT count(*)
+    FROM ParticipateProject
+    WHERE worker_id = ?
+
+    SELECT count(*)
+    FROM WorkerKnowsWorker
+    WHERE (worker_id1 = ? AND worker_id2 = ?) OR (worker_id1 = ? AND worker_id2 = ?)
+    LIIMIT 1
+
+def get_team_needs(worker_id, team_id):
+    worker_specialities = get_worker_speciality(worker_id)
+
+    for x in worker_specialities:
+    SELECT count(*)
+    FROM TeamNeedsSpeciality
+    WHERE team_id = ?
+    AND speciality_id = ?
+    AND count < (SELECT count(worker_id) FROM WorkerPartOfTeam JOIN WorkerHasSpeciality ON (worker_id) WHERE speciality_id = ?)
+
+
+
+
+
+
+
+
