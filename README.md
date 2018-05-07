@@ -1,11 +1,12 @@
 # constructure-single-node
 
-Useful developer command on mac when coding with chinese characters, which has its own ',' ';' etc.
+Developer Docs:
 
-pcregrep --color='auto' -n '[^\x00-\x7F]' whole.sql
+1. useful commands:
+1) grep for non-ascii chars in a file.
 
+pcregrep --color='auto' -n '[^\x00-\x7F]' <file path>
 
-DESIGN:
-
-REST API -- look aside cache only for matching scores (cache.sql)
-         -- db (whole.sql)
+2. TODO:
+1) REST API (django)
+2) Testing
