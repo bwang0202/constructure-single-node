@@ -34,7 +34,7 @@ def _match_certificates(certificates1, certificates2):
     for cert_id1 in certificates1:
         if cert_id1 in certificates2:
             value += 1
-        else if certificates1[cert_id1] in certificates2.values():
+        elif certificates1[cert_id1] in certificates2.values():
             value += 0.8
     return 100 * (2 * value)/(len(specialities1) + len(specialities2))
 
