@@ -1,8 +1,11 @@
 # Constructure 1.0
 # Bojun Wang, May 2018
+# TODO FIX LIMIT 1
 
 import apsw
 import config
+
+from model import *
 
 def longest_common_prefix(seq1, seq2):
     start = 0
@@ -80,38 +83,84 @@ def invalidateTeam(self, team_id):
         self.execute("DELETE FROM MatchedWorkerTeam WHERE team_id = ?", (team_id, ))
         self.commit()
 
-def get_worker_speciality(worker_id):
+def get_all_workers():
     with DatabaseConnection() as conn:
         return conn.execute("""
+            SELECT worker_id
+            FROM Workers
+            """)
+
+def get_all_teams():
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT team_id
+            FROM Teams
+            """)
+
+def insert_match_result(worker_id1, worker_id2, score, reason):
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            INSERT INTO MatchedWorkers
+            VALUES (?, ?, ?, ?)
+            """, (worker_id1, worker_id2, score, reason))
+        conn.execute("""
+            INSERT INTO MatchedWorkers
+            VALUES (?, ?, ?, ?)
+            """, (worker_id2, worker_id1, score, reason))
+        conn.commit()
+
+def get_worker_speciality(worker_id):
+    with DatabaseConnection() as conn:
+        (speciality_id, name) = conn.execute("""
             SELECT speciality_id, name
             FROM WorkerHasSpeciality
             JOIN Speciality USING (speciality_id)
             WHERE worker_id = ?
-            """, (worker_id, ))
+            LIMIT 1
+            """, (worker_id, ))[0]
+        print("Got worker Speciality %s %s" % (speciality_id, name))
+        return Speciality(name, speciality_id=speciality_id)
 
 def get_worker_cert(worker_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT cert_id, name, level, achieved
+            SELECT cert_id, name, achieved, level
             FROM WorkerHasCert
             JOIN Certificate USING (cert_id)
             WHERE worker_id = ?
-            """)
+            LIMIT 1
+            """) 
 
 def get_worker_info(worker_id):
     with DatabaseConnection() as conn:
-        conn.execute("""
+        (name, age, work_age, education, hometown) = conn.execute("""
             SELECT Workers.name, age, work_age, education,
                    (SELECT Places.name FROM Places WHERE Places.place_id = Workers.place_id)
             FROM Workers
             WHERE worker_id = ?
             LIMIT 1
-            """, (worker_id, ))[0] + (get_worker_speciality(worker_id), get_worker_cert(worker_id))
+            """, (worker_id, ))[0]
+    return Worker(name, age, work_age, education, hometown,
+            worker_id).add_speciality(get_worker_speciality(worker_id))
 
-def get_workers_common_experience(worker_id1, worker_id2):
+def _form_common_date(start, end):
+    if not end:
+        return "%s - Now" % start
+    return "%s - %s" % (start, end)
+
+def get_workers_common_team(worker_id1, worker_id2):
+    # TODO: get multiple
+    same_team = ""
     with DatabaseConnection() as conn:
-        same_team = conn.execute("""
-            SELECT t.name, a.starts, a.ends, b.starts, b.ends
+        result = conn.execute("""
+            SELECT t.name,
+            CASE WHEN a.starts < b.starts THEN b.starts ELSE a.starts END,
+            CASE WHEN (a.ends IS NULL AND b.ends IS NULL) THEN NULL
+                 WHEN (a.ends IS NULL) THEN b.ends
+                 WHEN (b.ends IS NULL) THEN a.ends
+                 WHEN (a.ends < b.ends) THEN a.ends
+                 ELSE b.ends END
             FROM WorkerPartOfTeam a
             JOIN WorkerPartOfTeam b ON (a.team_id = b.team_id)
             JOIN Teams t ON (a.team_id = t.team_id)
@@ -121,48 +170,12 @@ def get_workers_common_experience(worker_id1, worker_id2):
                 OR (b.ends is NULL AND b.starts > a.ends)
                 OR a.ends > b.starts
                 OR b.ends > a.starts)
-                """, (worker_id1, worker_id2))
-        total_team1 = conn.execute("""  
-            SELECT count(*)
-            FROM WorkerPartOfTeam
-            WHERE worker_id = ? """, (worker_id1, ))[0]
-        total_team2 = conn.execute("""
-            SELECT count(*)
-            FROM WorkerPartOfTeam
-            WHERE worker_id = ? """, (worker_id2, ))[0]
-
-        same_project = conn.execute("""
-            SELECT p.name, (SELECT name FROM Places WHERE place_id = p.place_id), a.starts, a.ends, b.starts, b.ends
-            FROM ParticipateProject a
-            JOIN ParticipateProject b ON (a.project_id = b.project_id)
-            JOIN Projects p ON (a.project_id = p.project_id)
-            WHERE a.worker_id = ? AND b.worker_id = ?
-            AND a.team_id <> b.team_id
-            AND ((a.ends is NULL AND b.ends is NULL)
-                OR (a.ends is NULL AND a.starts > b.ends)
-                OR (b.ends is NULL AND b.starts > a.ends)
-                OR a.ends > b.starts
-                OR b.ends > a.starts)
-            """, (worker_id1, worker_id2))
-        total_projects1 = conn.execute("""
-            SELECT count(*)
-            FROM ParticipateProject
-            WHERE worker_id = ?
-            """, (worker_id1, ))[0]
-        total_projects2 = conn.execute("""
-            SELECT count(*)
-            FROM ParticipateProject
-            WHERE worker_id = ?
-            """, (worker_id2, ))[0]
-
-        personal_relations = conn.execute("""
-            SELECT worker_id1, notes
-            FROM WorkerKnowsWorker
-            WHERE (worker_id1 = ? AND worker_id2 = ?) OR (worker_id1 = ? AND worker_id2 = ?)
-            """, (worker_id1, worker_id2, worker_id2, worker_id1))
-
-        return (same_team, total_team1, total_team2, same_project, total_projects1, total_projects2, personal_relations)
-
+            LIMIT 1
+                """, (worker_id1, worker_id2))[0]
+        if result:
+            (team_name, start, end) = result
+            same_team = "%s %s" % (team_name, _form_common_date(start, end))
+        return same_team
 
 def get_team_needs(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -178,21 +191,54 @@ def get_team_needs(worker_id, team_id):
                                              JOIN WorkerHasSpeciality ON (worker_id)
                                              WHERE team_id = TeamNeedsSpeciality.team_id
                                              AND speciality_id = TeamNeedsSpeciality.speciality_id)
-            """, (team_id, worker_id))
+            LIMIT 1
+            """, (team_id, worker_id))[0]
 
-def get_team_workers_comp(worker_id, team_id):
-    team_worker_ids = []
-    with DatabaseConnection() as conn:
-        team_worker_ids = conn.execute("""
-            SELECT worker_id FROM WorkerPartOfTeam WHERE team_id = ?
-            """, (team_id, ))
-
-    _string = "(%s)" % ", ".join("?" for x in team_worker_ids)
-    _tuple = tuple([x[0] for x in team_worker_ids])
+def get_team_homies(worker_id, team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT avg(score)
+            SELECT worker_id
+            FROM WorkerPartOfTeam
+            JOIN Team ON (worker_id)
+            JOIN Workers ON (worker_id)
+            WHERE team_id = ?
+            AND ends is NULL
+            AND place_id = (SELECT place_id FROM Workers WHERE worker_id = ?)
+            """, (team_id, worker_id))
+
+def get_team_ex_teammates(worker_id, team_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT worker_id
+            FROM WorkerPartOfTeam
+            WHERE team_id = ?
+            AND ends is NULL
+            AND worker_id IN (
+                SELECT b.worker_id
+                FROM WorkerPartOfTeam a
+                JOIN WorkerPartOfTeam b ON (a.team_id = b.team_id)
+                WHERE a.worker_id = ?
+                AND ((a.ends is NULL AND b.ends is NULL)
+                OR (a.ends is NULL AND a.starts > b.ends)
+                OR (b.ends is NULL AND b.starts > a.ends)
+                OR a.ends > b.starts
+                OR b.ends > a.starts)
+            )
+            """, (team_id, worker_id))
+
+def get_top_matched_workers(worker_id, matched_workers, limit=10):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT (SELECT name FROM Workers
+                    WHERE worker_id = MatchedWorkers.worker_id2),
+                    reason
             FROM MatchedWorkers
-            WHERE (worker_id1 = ? AND worker_id2 in %s)
-            OR (worker_id2 = ? AND worker_id1 in %s) 
-            """ % (_string, _string), (worker_id, _tuple, worker_id, _tuple))
+            WHERE worker_id1 = ?
+            AND worker_id2 in (%s)
+            ORDER BY score DESC
+            LIMIT ?
+            """ % ",".join(["?" for x in matched_workers]),
+            (worker_id, ) + tuple(matched_workers) + (limit, ))
+
+
+

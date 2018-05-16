@@ -61,7 +61,7 @@ CREATE TABLE WorkerPartOfTeam (
     position INTEGER NOT NULL DEFAULT 1,
     --
     PRIMARY KEY (worker_id, team_id, starts),
-    CHECK (ends > starts)
+    CHECK (ends is NULL or ends > starts)
 );
 
 CREATE TABLE Speciality (
@@ -124,19 +124,14 @@ CREATE TABLE Projects (
 
 -- position 1, 2, 3 means worker, mid-leader, big-leader for now
 -- some big-leader may not have a clear speciality during this project
-CREATE TABLE ParticipateProject (
-    worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
+CREATE TABLE TeamParticipateProject (
     team_id INTEGER NOT NULL REFERENCES Team(team_id),
     project_id INTEGER NOT NULL REFERENCES Projects(project_id),
     starts DATETIME NOT NULL,
     ends DATETIME,
-    position INTEGER NOT NULL DEFAULT 1,
-    speciality_id INTEGER REFERENCES Speciality(speciality_id),
     --
-    PRIMARY KEY (worker_id, team_id, project_id, starts),
-    CHECK (ends > starts),
-    CHECK (position > 0),
-    CHECK (position > 1 or speciality_id NOT NULL)
+    PRIMARY KEY (team_id, project_id, starts),
+    CHECK (ends is NULL or ends > starts)
 );
 
 
@@ -144,16 +139,17 @@ CREATE TABLE MatchedWorkers (
     worker_id1 INTEGER NOT NULL,
     worker_id2 INTEGER NOT NULL,
     score INTEGER NOT NULL DEFAULT 0,
+    reason TEXT NOT NULL,
     --
     PRIMARY KEY (worker_id1, worker_id2),
     CHECK (score >= 0 and score <= 100),
-    CHECK (worker_id1 < worker_id2) # No duplicate
 );
 
 CREATE TABLE MatchedWorkerTeam (
     worker_id INTEGER NOT NULL,
     team_id INTEGER NOT NULL,
     score INTEGER NOT NULL DEFAULT 0,
+    reason TEXT NOT NULL,
     --
     PRIMARY KEY (team_id, worker_id),
     CHECK (score >= 0 and score <= 100)

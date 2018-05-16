@@ -12,9 +12,11 @@ import json
 
 def echo(request):
     if request.method == "GET":
-        return HttpResponse("%s %s %s" % (request.method, request.path, request.GET))
+        #GET http://localhost:8000/user/worker/?q=1&arg2=2
+        return HttpResponse("%s, %s, %s" % (request.method, request.path, request.GET.get('q', 'aadljalja')))
     else:
-        return HttpResponse("%s %s %s" % (request.method, request.path, request.body))
+        #curl -XPOST http://localhost:8000/user/worker/ -d '{"key1":"value1"}'
+        return HttpResponse("%s, %s, %s" % (request.method, request.path, request.body))
 
 def worker(request):
     print("func: worker")
