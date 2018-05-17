@@ -75,7 +75,6 @@ def match_workers(worker_id1, workder_id2):
             _match_hometown(worker1, worker2),
             _match_specialites(worker1, worker2),
             _match_same_teams(worker1, worker2)]    
-    
 
 def match_worker_team(worker_id, team_id, display=10):
     # display three results together:
@@ -105,13 +104,22 @@ def match_worker_team(worker_id, team_id, display=10):
 def compute_match_for_worker(worker_id):
     all_workers = get_all_workers()
     for x in all_workers:
-        if x == workder_id:
+        if x == worker_id:
             continue
         # FIXME: check existing match result first
-        match_entries = matched_workers(x, workder_id)
-        # INSERT
-    all_teams = get_all_teams()
+        match_entries = match_workers(x, worker_id)
+        score = 0
+        for y in match_entries:
+            score += y.score * y.weight
+        insert_match_result(x, worker_id, score,
+                            "; ".join([z.keyword for z in match_entries]))
+    all_teams = get_team_ids()
     for x in all_teams:
-        match_entries = match_worker_team(workder_id, x)
-        # INSERT
+        match_entries = match_worker_team(worker_id, x)
+        # 
+        score = 0
+        for y in match_entries:
+            score += y.score + y.weight
+        insert_match_team_result(workder_id, x, score,
+                                 ";".join([z.keyword for z in match_entries]))
 

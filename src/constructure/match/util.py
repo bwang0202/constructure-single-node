@@ -90,7 +90,10 @@ def get_all_workers():
             FROM Workers
             """)
 
-def get_all_teams():
+def get_team_ids(prefix=None, place=None):
+    """
+    TODO: implement prefix + place filter
+    """
     with DatabaseConnection() as conn:
         return conn.execute("""
             SELECT team_id
@@ -108,6 +111,15 @@ def insert_match_result(worker_id1, worker_id2, score, reason):
             INSERT INTO MatchedWorkers
             VALUES (?, ?, ?, ?)
             """, (worker_id2, worker_id1, score, reason))
+        conn.commit()
+
+def insert_match_team_result(worker_id, team_id, score, reason):
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            INSERT INTO MatchedWorkerTeam
+            VALUES (?, ?, ?, ?)
+            """, (worker_id, team_id, score, reason))
         conn.commit()
 
 def get_worker_speciality(worker_id):
@@ -199,7 +211,7 @@ def get_team_homies(worker_id, team_id):
         return conn.execute("""
             SELECT worker_id
             FROM WorkerPartOfTeam
-            JOIN Team ON (worker_id)
+            JOIN Teams ON (worker_id)
             JOIN Workers ON (worker_id)
             WHERE team_id = ?
             AND ends is NULL
@@ -241,4 +253,46 @@ def get_top_matched_workers(worker_id, matched_workers, limit=10):
             (worker_id, ) + tuple(matched_workers) + (limit, ))
 
 
+def insert_place_if_not_exist(place):
+    with DatabaseConnection() as conn:
+        place_id = conn.execute("""
+            SELECT place_id FROM Places WHERE name = ?
+            """, (place, ))[0]
+        if place_id:
+            return place_id
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            INSERT INTO Places (name) VALUES (?)
+            """, (place, ))
+        place_id = conn.lastrowid()
+        conn.commit()
+        return place_id
 
+def insert_speciality_if_not_exist(name):
+    with DatabaseConnection() as conn:
+        speciality_id = conn.execute("""
+            SELECT speciality_id FROM Speciality WHERE name = ?
+            """, (name, ))[0]
+        if speciality_id:
+            return speciality_id
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            INSERT INTO Speciality (name) VALUES (?)
+            """, (name, ))
+        speciality_id = conn.lastrowid()
+        conn.commit()
+        return speciality_id
+
+def worker_exists(worker_id):
+    with DatabaseConnection() as conn:
+        return not conn.execute("""
+            SELECT * FROM Workers WHERE worker_id = ?
+            """, (worker_id, )) == []
+
+def team_exists(team_id):
+    with DatabaseConnection() as conn:
+        return not conn.execute("""
+            SELECT * FROM Teams WHERE team_id = ?
+            """, (team_id, )) == []

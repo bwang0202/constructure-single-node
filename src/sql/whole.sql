@@ -29,7 +29,7 @@ CREATE TABLE Workers (
 );
 
 -- Not allowing teams with duplicate names for now
-CREATE TABLE Team (
+CREATE TABLE Teams (
     team_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     --
