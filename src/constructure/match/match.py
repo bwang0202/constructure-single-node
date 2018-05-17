@@ -8,10 +8,10 @@ import config
 from config import MatchWorkersConstants, MatchTeamWorkerConstants
 from util import *
 
-from model import Worker, Team, Speciality
+from model import *
 
-age_keyword = "年龄相近"
-work_age_keyword = "工龄相近"
+age_keyword = "similar age"
+work_age_keyword = "similar exp"
 
 class MatchEntry:
     def __init__(self, score, weight, keyword=None, is_speciality=False):
@@ -34,8 +34,9 @@ def _match_work_age(worker1, worker2):
 
 def _match_specialites(worker1, worker2):
     weight = MatchWorkersConstants.speciality
-    if and worker1.specialities and worker2.specialities \
-        and worker1.specialities[0].name = worker2.specialities[0].name:
+    if worker1.specialities and worker2.specialities \
+        and len(worker1.specialities) > 0 and len(worker2.specialities) > 0 \
+        and worker1.specialities[0].name == worker2.specialities[0].name:
         return MatchEntry(100, weight, worker1.specialities[0].name, is_speciality=True)
     return MatchEntry(0, weight, is_speciality=True)
 
@@ -78,9 +79,6 @@ def match_workers(worker_id1, workder_id2):
 
 def match_worker_team(worker_id, team_id, display=10):
     # display three results together:
-    #       缺少电工
-    #       56 同乡 23人曾同队
-    #       unique(56 + 23 ) match 最高的 X 人
 
     # job match speciality
     job = get_team_needs(worker_id, team_id)
@@ -95,7 +93,7 @@ def match_worker_team(worker_id, team_id, display=10):
 
     return [MatchEntry(100 if job else 0,
                        MatchTeamWorkerConstants.job,
-                       "缺少" % job if job else None),
+                       "missing " % job if job else None),
             MatchEntry(100 if matched_workers else 0,
                        MatchTeamWorkerConstants.teammates,
                        "\n".join("%s %s" % (matched_workers[0], matched_workers[1])))

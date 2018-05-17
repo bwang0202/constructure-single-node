@@ -1,7 +1,7 @@
 # Constructure 1.0
 # Bojun Wang, May 2018
 
-db_path = "default db path"
+db_path = "/Users/bojun/git/constructure-single-node/run/test.db"
 
 class MatchWorkersConstants:
 	age = 0.05

@@ -8,8 +8,10 @@ from django.http import HttpResponse
 
 import json
 
-from match import match, util
-from model import *
+from match import match, util, model
+from match.match import *
+from match.util import *
+from match.model import *
 
 def build_worker(body):
     return Worker(body['name'], body['age'], body['work_age'],

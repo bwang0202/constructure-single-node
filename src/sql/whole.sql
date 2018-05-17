@@ -72,7 +72,6 @@ CREATE TABLE Speciality (
     CHECK (length(name) > 0)
 );
 
-# TODO: requires cert ?
 CREATE TABLE TeamNeedsSpeciality (
     speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
     team_id INTEGER NOT NULL REFERENCES Team(team_id),
@@ -80,7 +79,7 @@ CREATE TABLE TeamNeedsSpeciality (
     --
     UNIQUE (team_id, speciality_id),
     CHECK (count > 0)
-)
+);
 
 
 -- certificate must be tied to a speciality
@@ -142,7 +141,7 @@ CREATE TABLE MatchedWorkers (
     reason TEXT NOT NULL,
     --
     PRIMARY KEY (worker_id1, worker_id2),
-    CHECK (score >= 0 and score <= 100),
+    CHECK (score >= 0 and score <= 100)
 );
 
 CREATE TABLE MatchedWorkerTeam (
