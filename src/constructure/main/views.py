@@ -8,14 +8,13 @@ from django.http import HttpResponse
 
 import json
 
-from match import match, util, model
 from match.match import *
-from match.util import *
-from match.model import *
 
 def build_worker(body):
-    return Worker(body['name'], body['age'], body['work_age'],
-        body['education'], body['hometown'], body['speciality'])
+    worker = Worker(body['name'], body['age'], body['work_age'],
+        body['education'], body['hometown'])
+    worker.specialities.append(body['speciality'])
+    return worker
 
 
 def echo(request):
@@ -35,8 +34,13 @@ def worker(request):
         body = json.loads(request.body)
         worker = build_worker(body)
         worker_id = add_worker(worker)
-        worker.worker_id = worker_id
-        start_match_calculation(worker)
+        ex_teams = body['ex_teams']
+        for ex_team in ex_teams:
+            team_id = ex_team['team_id']
+            starts = ex_team['starts']
+            ends = ex_team['ends']
+            add_worker_to_team(worker_id, team_id, starts, ends)
+        start_match_calculation(worker_id)
         return HttpResponse(json.dumps({'msg': 'worker added', 'id': worker_id}))
 
     return echo(request)
@@ -52,6 +56,7 @@ def worker_team(request):
         body = json.loads(request.body)
         add_worker_to_team(body['worker_id'], body['team_id'], body['starts'],
             body['ends'])
+        start_match_calculation(body['worker_id'])
         return HttpResponse(json.dumps({'msg': 'worker added to team.'}))
     return echo(request)
 

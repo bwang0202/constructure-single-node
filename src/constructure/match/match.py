@@ -8,8 +8,6 @@ import config
 from config import MatchWorkersConstants, MatchTeamWorkerConstants
 from util import *
 
-from model import *
-
 age_keyword = "similar age"
 work_age_keyword = "similar exp"
 
@@ -50,10 +48,10 @@ def _match_hometown(worker1, worker2):
             break
         if hometown1[i] != hometown2[i]:
             break
-        result.append(hometown1)
+        result.append(hometown1[i])
     return MatchEntry(0 if not result else 100,
         MatchWorkersConstants.hometown,
-        ",".join(result))
+        "hometown %s" % ",".join(result))
 
 def _match_same_teams(same_teams):
     return MatchEntry(0 if not same_teams else 100,
@@ -65,17 +63,17 @@ def _match_same_projects(same_projects):
         MatchWorkersConstants.project,
         ",".join(same_projects))
 
-def match_workers(worker_id1, workder_id2):
+def match_workers(worker_id1, worker_id2):
     worker1 = get_worker_info(worker_id1)
     worker2 = get_worker_info(worker_id2)
 
-    same_teams = get_workers_common_teams(worker_id1, worker_id2)
+    same_teams = get_workers_common_team(worker_id1, worker_id2)
 
     return [_match_age(worker1, worker2),
             _match_work_age(worker1, worker2),
             _match_hometown(worker1, worker2),
             _match_specialites(worker1, worker2),
-            _match_same_teams(worker1, worker2)]    
+            _match_same_teams(same_teams)]    
 
 def match_worker_team(worker_id, team_id, display=10):
     # display three results together:
@@ -84,40 +82,56 @@ def match_worker_team(worker_id, team_id, display=10):
     job = get_team_needs(worker_id, team_id)
 
     # homies
-    homies = get_team_homies(workder_id, team_id)
+    homies = get_team_homies(worker_id, team_id)
     # ex teammates
     ex_teammates = get_team_ex_teammates(worker_id, team_id)
 
-    matched_workers = get_top_matched_workers(worker_id, homies + ex_teammates,
+    teammates_candidates = []
+    for x in homies:
+        teammates_candidates.append(x[0])
+    for x in ex_teammates:
+        teammates_candidates.append(x[0])
+
+    matched_workers = get_top_matched_workers(worker_id, teammates_candidates,
         limit=display)
 
     return [MatchEntry(100 if job else 0,
                        MatchTeamWorkerConstants.job,
-                       "missing " % job if job else None),
+                       "missing %s" % job if job else ""),
             MatchEntry(100 if matched_workers else 0,
                        MatchTeamWorkerConstants.teammates,
-                       "\n".join("%s %s" % (matched_workers[0], matched_workers[1])))
+                       "\n".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")
             ]
+
+def start_match_calculation(worker_id):
+    if not worker_id:
+        raise RuntimeException("worker_id %s" % str(worker_id))
+    # Background TODO
+    compute_match_for_worker(worker_id)
+
 
 def compute_match_for_worker(worker_id):
     all_workers = get_all_workers()
     for x in all_workers:
-        if x == worker_id:
+        if x[0] == worker_id:
             continue
         # FIXME: check existing match result first
-        match_entries = match_workers(x, worker_id)
+        match_entries = match_workers(x[0], worker_id)
+        # sort according to match result
+        match_entries = sorted(match_entries, key=lambda me:(-me.score * me.weight))
+
         score = 0
         for y in match_entries:
             score += y.score * y.weight
-        insert_match_result(x, worker_id, score,
-                            "; ".join([z.keyword for z in match_entries]))
+        insert_match_result(x[0], worker_id, score,
+                            "; ".join([z.keyword for z in match_entries[:3]]))
     all_teams = get_team_ids()
     for x in all_teams:
-        match_entries = match_worker_team(worker_id, x)
+        match_entries = match_worker_team(worker_id, x[0])
         # 
         score = 0
         for y in match_entries:
-            score += y.score + y.weight
-        insert_match_team_result(workder_id, x, score,
-                                 ";".join([z.keyword for z in match_entries]))
+            score += y.score * y.weight
+        insert_match_team_result(worker_id, x[0], score,
+                                 "; ".join([z.keyword for z in match_entries]))
 

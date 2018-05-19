@@ -18,14 +18,15 @@ CREATE TABLE Workers (
     place_id INTEGER NOT NULL REFERENCES Places(place_id),
     education TEXT NOT NULL,
     --
+    UNIQUE (name),
     CHECK (age > 0),
     CHECK (work_age >= 0),
     CHECK (length(name) > 0)
-    CHECK (education = '无' or education = '小学'
-        or education = '初中' or education = '高中'
-        or education = '大专' or education = '大学'
-        or education = '研究生' or education = '博士'
-        or education = '博士后')
+    -- CHECK (education = '无' or education = '小学'
+    --     or education = '初中' or education = '高中'
+    --     or education = '大专' or education = '大学'
+    --     or education = '研究生' or education = '博士'
+    --     or education = '博士后')
 );
 
 -- Not allowing teams with duplicate names for now

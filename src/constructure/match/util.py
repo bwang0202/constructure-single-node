@@ -5,8 +5,8 @@
 import apsw
 import config
 
-from .model import *
-
+from model import *
+from match import *
 
 class Speciality:
     def __init__(self, name, certificate_name=None,
@@ -55,12 +55,13 @@ class Team:
 def add_worker(worker):
     # Insert hometown if necessary
     place_id = insert_place_if_not_exist(worker.hometown)
+
     # Insert worker
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
             INSERT INTO Workers (name, age, work_age, place_id, education)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             """, (worker.name, worker.age, worker.work_age, place_id, worker.education))
         worker_id = conn.lastrowid()
         conn.commit()
@@ -100,11 +101,6 @@ def get_teams(place=None, prefix=None):
             """)
     return [Team(x[1], x[0]) for x in result]
 
-def start_match_calculation(worker):
-    if not worker.worker_id:
-        raise RuntimeException("worker_id %s" % str(worker.worker_id))
-    # Background TODO
-    compute_match_for_worker(worker.worker_id)
 
 def get_matched_workers(worker_id, limit=10):
     with DatabaseConnection() as conn:
@@ -251,7 +247,6 @@ def get_worker_speciality(worker_id):
             WHERE worker_id = ?
             LIMIT 1
             """, (worker_id, ))[0]
-        print("Got worker Speciality %s %s" % (speciality_id, name))
         return Speciality(name, speciality_id=speciality_id)
 
 def get_worker_cert(worker_id):
@@ -298,16 +293,17 @@ def get_workers_common_team(worker_id1, worker_id2):
             JOIN Teams t ON (a.team_id = t.team_id)
             WHERE a.worker_id = ? AND b.worker_id = ?
             AND ((a.ends is NULL AND b.ends is NULL)
-                OR (a.ends is NULL AND a.starts > b.ends)
-                OR (b.ends is NULL AND b.starts > a.ends)
-                OR a.ends > b.starts
-                OR b.ends > a.starts)
+                OR (a.ends is NULL AND a.starts < b.ends)
+                OR (b.ends is NULL AND b.starts < a.ends)
+                OR (a.ends > b.starts AND a.starts < b.ends)
+                OR (b.ends > a.starts AND b.starts < a.ends))
             LIMIT 1
-                """, (worker_id1, worker_id2))[0]
-        if result:
-            (team_name, start, end) = result
-            same_team = "%s %s" % (team_name, _form_common_date(start, end))
-        return same_team
+                """, (worker_id1, worker_id2))
+        if len(result) == 0:
+            return same_team
+        (team_name, start, end) = result[0]
+        same_team = "%s %s" % (team_name, _form_common_date(start, end))
+        return [same_team]
 
 def get_team_needs(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -318,24 +314,25 @@ def get_team_needs(worker_id, team_id):
             JOIN Speciality USING (speciality_id)
             WHERE TeamNeedsSpeciality.team_id = ?
             AND WorkerHasSpeciality.worker_id = ?
-            AND TeamNeedsSpeciality.count > (SELECT count(worker_id)
+            AND TeamNeedsSpeciality.count > (SELECT count(WorkerPartOfTeam.worker_id)
                                              FROM WorkerPartOfTeam
-                                             JOIN WorkerHasSpeciality ON (worker_id)
+                                             JOIN WorkerHasSpeciality USING (worker_id)
                                              WHERE team_id = TeamNeedsSpeciality.team_id
-                                             AND speciality_id = TeamNeedsSpeciality.speciality_id)
+                                             AND speciality_id = TeamNeedsSpeciality.speciality_id
+                                             AND ends IS NULL)
             LIMIT 1
             """, (team_id, worker_id))[0]
 
 def get_team_homies(worker_id, team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT worker_id
+            SELECT Workers.worker_id
             FROM WorkerPartOfTeam
-            JOIN Teams ON (worker_id)
-            JOIN Workers ON (worker_id)
+            JOIN Teams USING (team_id)
+            JOIN Workers USING (worker_id)
             WHERE team_id = ?
             AND ends is NULL
-            AND place_id = (SELECT place_id FROM Workers WHERE worker_id = ?)
+            AND place_id = (SELECT place_id FROM Workers WHERE Workers.worker_id = ?)
             """, (team_id, worker_id))
 
 def get_team_ex_teammates(worker_id, team_id):
@@ -351,10 +348,10 @@ def get_team_ex_teammates(worker_id, team_id):
                 JOIN WorkerPartOfTeam b ON (a.team_id = b.team_id)
                 WHERE a.worker_id = ?
                 AND ((a.ends is NULL AND b.ends is NULL)
-                OR (a.ends is NULL AND a.starts > b.ends)
-                OR (b.ends is NULL AND b.starts > a.ends)
-                OR a.ends > b.starts
-                OR b.ends > a.starts)
+                OR (a.ends is NULL AND a.starts < b.ends)
+                OR (b.ends is NULL AND b.starts < a.ends)
+                OR (a.ends > b.starts AND a.starts < b.ends)
+                OR (b.ends > a.starts AND b.starts < a.ends))
             )
             """, (team_id, worker_id))
 
@@ -377,9 +374,9 @@ def insert_place_if_not_exist(place):
     with DatabaseConnection() as conn:
         place_id = conn.execute("""
             SELECT place_id FROM Places WHERE name = ?
-            """, (place, ))[0]
-        if place_id:
-            return place_id
+            """, (place, ))
+        if len(place_id) > 0:
+            return place_id[0][0]
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
@@ -393,9 +390,9 @@ def insert_speciality_if_not_exist(name):
     with DatabaseConnection() as conn:
         speciality_id = conn.execute("""
             SELECT speciality_id FROM Speciality WHERE name = ?
-            """, (name, ))[0]
-        if speciality_id:
-            return speciality_id
+            """, (name, ))
+        if len(speciality_id) > 0:
+            return speciality_id[0][0]
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
