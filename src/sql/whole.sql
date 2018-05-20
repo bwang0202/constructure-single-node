@@ -82,7 +82,6 @@ CREATE TABLE TeamNeedsSpeciality (
     CHECK (count > 0)
 );
 
-
 -- certificate must be tied to a speciality
 -- 六级木匠 （相当于中级知识分子）
 CREATE TABLE Certificate (
@@ -133,7 +132,6 @@ CREATE TABLE TeamParticipateProject (
     PRIMARY KEY (team_id, project_id, starts),
     CHECK (ends is NULL or ends > starts)
 );
-
 
 CREATE TABLE MatchedWorkers (
     worker_id1 INTEGER NOT NULL,
