@@ -99,24 +99,33 @@ def get_teams(place=None, prefix=None):
         result = conn.execute("""
             SELECT team_id, name FROM Teams
             """)
-    return [Team(x[1], x[0]) for x in result]
+    return [{'team_id': x[1], 'name': x[0]} for x in result]
 
-
-def get_matched_workers(worker_id, limit=10):
+def get_workers():
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT worker_id2, score, reason
+            SELECT worker_id, name, age, education, (SELECT name FROM Places WHERE place_id = Workers.place_id)
+            FROM Workers
+            """)
+
+
+def get_matched_workers(worker_id, limit=6):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT worker_id2, name, score, reason
             FROM MatchedWorkers
+            JOIN Workers ON (worker_id2 = worker_id)
             WHERE worker_id1 = ?
             ORDER BY score DESC
             LIMIT ?
             """, (worker_id, limit, ))
 
-def get_matched_teams(worker_id, limit=5):
+def get_matched_teams(worker_id, limit=4):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT team_id, score, reason
+            SELECT team_id, name, score, reason
             FROM MatchedWorkerTeam
+            JOIN Teams USING (team_id)
             WHERE worker_id = ?
             ORDER BY score DESC
             LIMIT ?
@@ -307,7 +316,7 @@ def get_workers_common_team(worker_id1, worker_id2):
 
 def get_team_needs(worker_id, team_id):
     with DatabaseConnection() as conn:
-        return conn.execute("""
+        result = conn.execute("""
             SELECT Speciality.name
             FROM TeamNeedsSpeciality
             JOIN WorkerHasSpeciality USING (speciality_id)
@@ -321,7 +330,10 @@ def get_team_needs(worker_id, team_id):
                                              AND speciality_id = TeamNeedsSpeciality.speciality_id
                                              AND ends IS NULL)
             LIMIT 1
-            """, (team_id, worker_id))[0]
+            """, (team_id, worker_id))
+        if result:
+            return result[0]
+        return None
 
 def get_team_homies(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -355,7 +367,7 @@ def get_team_ex_teammates(worker_id, team_id):
             )
             """, (team_id, worker_id))
 
-def get_top_matched_workers(worker_id, matched_workers, limit=10):
+def get_top_matched_workers(worker_id, matched_workers, limit=3):
     with DatabaseConnection() as conn:
         return conn.execute("""
             SELECT (SELECT name FROM Workers

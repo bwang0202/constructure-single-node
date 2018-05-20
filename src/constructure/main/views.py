@@ -28,7 +28,7 @@ def echo(request):
 def worker(request):
     if request.method == "GET":
         #GET http://localhost:8000/user/worker/?q=1&arg2=2
-        return HttpResponse("%s, %s, %s" % (request.method, request.path, request.GET.get('q', 'aadljalja')))
+        return HttpResponse(json.dumps({'data':get_workers()}))
     elif request.method == "POST":
         #curl -XPOST http://localhost:8000/user/worker/ -d '{"key1":"value1"}'
         body = json.loads(request.body)
@@ -63,13 +63,13 @@ def worker_team(request):
 def worker_match(request):
     if request.method == "GET":
         return HttpResponse(json.dumps({'data': get_matched_workers(
-            request.GET.get('worker_id'), request.GET.get('limit'))}))
+            request.GET.get('worker_id'))}))
 
     return echo(request)
 
 def team_match(request):
     if request.method == "GET":
         return HttpResponse(json.dumps({'data': get_matched_teams(
-            request.GET.get('worker_id'), request.GET.get('limit'))}))
+            request.GET.get('worker_id'))}))
     return echo(request)
 

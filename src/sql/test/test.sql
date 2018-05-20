@@ -91,7 +91,7 @@ INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (9, 5);
 INSERT INTO WorkerPartOfTeam VALUES (9, 3, "2013-11-05 00:00:00.000", "2014-11-01 00:00:00.000", 1);
 INSERT INTO WorkerPartOfTeam VALUES (9, 5, "2018-02-01 00:00:00.000", NULL, 1);
 
-INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (10, "Xu Youlin", 44, 21, 2, "High School");
+INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (10, "Wang Youlin", 44, 21, 2, "High School");
 INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (10, 6);
 INSERT INTO WorkerPartOfTeam VALUES (10, 3, "2011-03-30 00:00:00.000", "2014-02-18 00:00:00.000", 1);
 INSERT INTO WorkerPartOfTeam VALUES (10, 5, "2018-02-01 00:00:00.000", NULL, 1);

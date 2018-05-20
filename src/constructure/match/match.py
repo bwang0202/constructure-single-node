@@ -75,7 +75,7 @@ def match_workers(worker_id1, worker_id2):
             _match_specialites(worker1, worker2),
             _match_same_teams(same_teams)]    
 
-def match_worker_team(worker_id, team_id, display=10):
+def match_worker_team(worker_id, team_id, display=4):
     # display three results together:
 
     # job match speciality
@@ -100,7 +100,7 @@ def match_worker_team(worker_id, team_id, display=10):
                        "Needs %s" % job if job else ""),
             MatchEntry(100 if matched_workers else 0,
                        MatchTeamWorkerConstants.teammates,
-                       "\n".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")
+                       ".    ".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")
             ]
 
 def start_match_calculation(worker_id):
@@ -133,5 +133,5 @@ def compute_match_for_worker(worker_id):
         for y in match_entries:
             score += y.score * y.weight
         insert_match_team_result(worker_id, x[0], score,
-                                 "; ".join([z.keyword for z in match_entries]))
+                                 ";           ".join([z.keyword for z in match_entries]))
 
