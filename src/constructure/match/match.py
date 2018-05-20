@@ -8,8 +8,8 @@ import config
 from config import MatchWorkersConstants, MatchTeamWorkerConstants
 from util import *
 
-age_keyword = "similar age"
-work_age_keyword = "similar exp"
+age_keyword = "Similar age"
+work_age_keyword = "Matching experience"
 
 class MatchEntry:
     def __init__(self, score, weight, keyword=None, is_speciality=False):
@@ -51,7 +51,7 @@ def _match_hometown(worker1, worker2):
         result.append(hometown1[i])
     return MatchEntry(0 if not result else 100,
         MatchWorkersConstants.hometown,
-        "hometown %s" % ",".join(result))
+        "Hometown %s" % ",".join(result))
 
 def _match_same_teams(same_teams):
     return MatchEntry(0 if not same_teams else 100,
@@ -97,7 +97,7 @@ def match_worker_team(worker_id, team_id, display=10):
 
     return [MatchEntry(100 if job else 0,
                        MatchTeamWorkerConstants.job,
-                       "missing %s" % job if job else ""),
+                       "Needs %s" % job if job else ""),
             MatchEntry(100 if matched_workers else 0,
                        MatchTeamWorkerConstants.teammates,
                        "\n".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")

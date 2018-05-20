@@ -155,22 +155,22 @@ INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (21, 1);
 INSERT INTO WorkerPartOfTeam VALUES (21, 5, "2014-04-08 00:00:00.000", "2016-08-01 00:00:00.000", 1);
 INSERT INTO WorkerPartOfTeam VALUES (21, 4, "2017-03-01 00:00:00.000", NULL, 1);
 
-INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (22, "Xia Mingjie", 54, 18, 5, "College");
+INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (22, "Ye Huo", 54, 18, 5, "College");
 INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (22, 3);
 INSERT INTO WorkerPartOfTeam VALUES (22, 3, "2012-04-08 00:00:00.000", "2013-08-01 00:00:00.000", 1);
-INSERT INTO WorkerPartOfTeam VALUES (22, 2, "2016-02-01 00:00:00.000", NULL, 1);
+INSERT INTO WorkerPartOfTeam VALUES (22, 4, "2016-02-01 00:00:00.000", NULL, 1);
 
-INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (23, "Zhao Shoutian", 30, 8, 5, "High School");
+INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (23, "Du Kanshi", 30, 8, 5, "High School");
 INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (23, 4);
 INSERT INTO WorkerPartOfTeam VALUES (23, 3, "2012-02-01 00:00:00.000", "2013-08-01 00:00:00.000", 1);
 INSERT INTO WorkerPartOfTeam VALUES (23, 4, "2014-02-01 00:00:00.000", NULL, 1);
 
-INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (24, "Xu Jianyang", 32, 11, 5, "High School");
+INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (24, "Yan Chunying", 32, 11, 5, "High School");
 INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (24, 5);
 INSERT INTO WorkerPartOfTeam VALUES (24, 3, "2013-11-05 00:00:00.000", "2014-11-01 00:00:00.000", 1);
 INSERT INTO WorkerPartOfTeam VALUES (24, 4, "2018-02-01 00:00:00.000", NULL, 1);
 
-INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (25, "Gu Xiangwei", 44, 21, 5, "High School");
+INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (25, "Song Xiaoying", 44, 21, 5, "High School");
 INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (25, 6);
 INSERT INTO WorkerPartOfTeam VALUES (25, 2, "2011-03-30 00:00:00.000", "2014-02-18 00:00:00.000", 1);
 INSERT INTO WorkerPartOfTeam VALUES (25, 4, "2018-02-01 00:00:00.000", NULL, 1);
