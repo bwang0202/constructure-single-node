@@ -15,10 +15,10 @@ echo -e "Type any key to continue:"
 read line
 
 echo "Adding a new worker to Service..."
-echo "Yang Juncheng, Zhejiang, age 35, estimate clerks"
+echo "Yu Liuhuan, Zhejiang, age 35, estimate clerks"
 
 curl -s -XPOST http://localhost:8000/user/worker/ -d '
-{"name": "Yang Juncheng",
+{"name": "Yu Liuhuan",
 "hometown": "Zhejiang",
 "age": 35, "work_age": 10,
 "education": "College",
@@ -29,10 +29,10 @@ echo -e "Type any key to continue:"
 read line
 
 echo "Adding a new worker to Service..."
-echo "Li Kai, Sichuan, age 45, construction workers"
+echo "Chen Ying, Sichuan, age 45, construction workers"
 
 curl -s -XPOST http://localhost:8000/user/worker/ -d '
-{"name": "Li Kai",
+{"name": "Chen Ying",
 "hometown": "Sichuan",
 "age": 45, "work_age": 22,
 "education": "College",
