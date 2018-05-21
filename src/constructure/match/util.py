@@ -99,7 +99,7 @@ def get_teams(place=None, prefix=None):
         result = conn.execute("""
             SELECT team_id, name FROM Teams
             """)
-    return [{'team_id': x[1], 'name': x[0]} for x in result]
+    return [{'team_id': x[0], 'name': x[1]} for x in result]
 
 def get_workers():
     with DatabaseConnection() as conn:

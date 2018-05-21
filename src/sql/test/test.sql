@@ -53,7 +53,7 @@ INSERT INTO WorkerPartOfTeam VALUES (1, 5, "2017-01-01 00:00:00.000", NULL, 1);
 INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (2, "Dong Jianzhe", 54, 18, 1, "College");
 INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (2, 2);
 INSERT INTO WorkerPartOfTeam VALUES (2, 1, "2012-04-05 00:00:00.000", "2013-08-01 00:00:00.000", 1);
-INSERT INTO WorkerPartOfTeam VALUES (2, 5, "2016-01-01 00:00:00.000", NULL, 1);
+INSERT INTO WorkerPartOfTeam VALUES (2, 1, "2016-01-01 00:00:00.000", NULL, 1);
 
 INSERT INTO Workers (worker_id, name, age, work_age, place_id, education) VALUES (3, "Feng Zheqi", 30, 8, 1, "High School");
 INSERT INTO WorkerHasSpeciality (worker_id, speciality_id) VALUES (3, 3);

@@ -9,7 +9,7 @@ from config import MatchWorkersConstants, MatchTeamWorkerConstants
 from util import *
 
 age_keyword = "Similar age"
-work_age_keyword = "Matching experience"
+work_age_keyword = "Similar years of experience"
 
 class MatchEntry:
     def __init__(self, score, weight, keyword=None, is_speciality=False):
