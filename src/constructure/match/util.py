@@ -40,6 +40,7 @@ class Worker:
         self.num_of_teams = num_of_teams
         self.type_of_teams = type_of_teams
         self.worker_id = worker_id
+        self.worker_level = 0
     def __str__(self):
         result = [self.name, self.hometown]
         if self.specialities:
@@ -55,12 +56,47 @@ class Worker:
         self.specialities.append(speciality)
         return self
 
+    def get_worker_level(self):
+        # Return 1 - 100
+        if self.worker_level:
+            return self.worker_level
+        base = 1
+        if len(certificates) > 0: # 0 - 5
+            base += certificates[0]
+        base += education # 0-6
+        base += 4 if work_age > 10 else (work_age + 2) / 3 # 0 - 4
+        base += 4 if jobs > 10 else (jobs + 2) / 3 # 0 - 4
+        base += type_of_teams # 1 - 4
+        base += 4 if average_project_days > 180 else average_project_days / 45 # 0 -4
+        self.worker_level = int(base * 100 / (1 + 5 + 6 + 4 + 4 + 4 + 4))
+        return self.worker_level
+
 class Team:
     def __init__(self, name, team_id=None):
         self.name = name
         self.team_id = team_id
     def __str__(self):
         return "%s%s TEAM" % (self.name)
+
+def update_worker_level(worker_id, worker_level):
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            UPDATE Workers SET worker_level = ? WHERE worker_id = ?
+            """, (worker_level, worker_id))
+        conn.commit()
+
+def compute_worker_percentile(worker_id):
+    with DatabaseConnection() as conn:
+        total = conn.execute("""
+            SELECT count(worker_id) FROM workers
+            """)
+        lower = conn.execute("""
+            SELECT count(worker_id) FROM Workers
+            WHERE worker_level <= (SELECT worker_level FROM Workers WHERE worker_id = ?)
+            """, (worker_id, ))
+        return lower * 1.0 / total
+
 
 def add_worker(worker):
     # Insert hometown if necessary

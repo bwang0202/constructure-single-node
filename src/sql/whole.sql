@@ -16,13 +16,14 @@ CREATE TABLE Workers (
     age INTEGER NOT NULL,
     work_age INTEGER NOT NULL,
     place_id INTEGER NOT NULL REFERENCES Places(place_id),
-    education TEXT NOT NULL,
+    education INTEGER NOT NULL DEFAULT 0,
     jobs INTEGER NOT NULL DEFAULT 1,
     projects INTEGER NOT NULL DEFAULT 0,
     average_project_days INTEGER NOT NULL DEFAULT 30,
     type_of_projects INTEGER NOT NULL 1, # 1 住宅 2 小区 3 公共建筑 4 办公楼
     num_of_teams INTEGER NOT NULL DEFAULT 0,
     type_of_teams INTEGER NOT NULL 1, # 1 世界 2 全国 3 地区领头 4 地区
+    worker_level INTEGER NOT NULL DEFAULT 50,
     --
     UNIQUE (name),
     CHECK (age > 0),
@@ -32,11 +33,11 @@ CREATE TABLE Workers (
     CHECK (projects > 0),
     CHECK (average_project_days > 0),
     CHECK (num_of_teams >= 0)
-    -- CHECK (education = '无' or education = '小学'
-    --     or education = '初中' or education = '高中'
-    --     or education = '大专' or education = '大学'
-    --     or education = '研究生' or education = '博士'
-    --     or education = '博士后')
+    -- CHECK (education 0 '无' or education 1 '小学'
+    --     or education 2 '初中' or education 3'高中'
+    --     or education 4'大专' or education 5'大学'
+    --     or education 6 '研究生' or education 7'博士'
+    --     or education 8 '博士后')
 );
 
 -- Not allowing teams with duplicate names for now

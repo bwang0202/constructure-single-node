@@ -11,6 +11,7 @@ import json
 from match.match import *
 
 DO_MATCHING = False
+DO_COMPETING = True
 
 def build_worker(body):
     worker = Worker(body['name'], body['age'], body['work_age'],
@@ -52,7 +53,10 @@ def worker(request):
         resp_obj = {'msg': 'worker added', 'id': worker_id}
 
         if DO_COMPETING:
-            resp_obj[] = pass
+            worker_level = worker.get_worker_level()
+            resp_obj['worker_level'] = worker_level
+            update_worker_level(worker_id, worker_level)
+            resp_obj['worker_percentile'] = compute_worker_percentile(worker_id)
 
         return HttpResponse(json.dumps(resp_obj))
 
