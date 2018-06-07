@@ -8,8 +8,9 @@ Developer Docs:
 pcregrep --color='auto' -n '[^\x00-\x7F]' <file path>
 
 2. TODO:
-	a. Try deploy in AWS (django)
-	b. zhongwen
+        a. https://blog.csdn.net/xjtarzan/article/details/51492106
+	b. Try deploy in AWS (django)
+	c. zhongwen
 
 Demo Front End Notes & API:
     Request:
