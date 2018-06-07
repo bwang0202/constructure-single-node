@@ -19,9 +19,13 @@ class Speciality:
             return "%s %s" % (self.name, self.certificate_name)
         return self.name
 
+class Certificate:
+    def __init__(self, name, )
+
 class Worker:
     def __init__(self, name, age, work_age, education,
-            hometown, worker_id=None):
+            hometown, jobs, projects, average_project_days,
+            type_of_projects, num_of_teams, type_of_teams, worker_id=None):
         self.name = name
         self.age = age
         self.work_age = work_age
@@ -29,6 +33,12 @@ class Worker:
         self.hometown = hometown
         self.specialities = []
         self.certificates = []
+        self.jobs = jobs
+        self.projects = projects
+        self.average_project_days = average_project_days
+        self.type_of_projects = type_of_projects
+        self.num_of_teams = num_of_teams
+        self.type_of_teams = type_of_teams
         self.worker_id = worker_id
     def __str__(self):
         result = [self.name, self.hometown]
@@ -60,9 +70,9 @@ def add_worker(worker):
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
-            INSERT INTO Workers (name, age, work_age, place_id, education)
-            VALUES (?, ?, ?, ?, ?)
-            """, (worker.name, worker.age, worker.work_age, place_id, worker.education))
+            INSERT INTO Workers (name, age, work_age, place_id, education, jobs, projects, average_project_days, type_of_projects, num_of_teams, type_of_teams)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """, (worker.name, worker.age, worker.work_age, place_id, worker.education, worker.jobs, worker.projects, worker.average_project_days, worker.type_of_projects, worker.num_of_teams, worker.type_of_teams))
         worker_id = conn.lastrowid()
         conn.commit()
 
@@ -76,6 +86,14 @@ def add_worker(worker):
             """, (worker_id, speciality_id))
         conn.commit()
 
+    # Insert certificate if necessary
+    cert_id = insert_certificate_if_not_exist(speciality_id, worker.certificates[0])
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            INSERT INTO WorkerHasCert (worker_id, cert_id)
+            VALUES (?, ?)
+            """, (worker_id, cert_id))
     return worker_id
 
 def add_worker_to_team(worker_id, team_id, starts, ends=None):
@@ -261,7 +279,7 @@ def get_worker_speciality(worker_id):
 def get_worker_cert(worker_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT cert_id, name, achieved, level
+            SELECT cert_id, name, level
             FROM WorkerHasCert
             JOIN Certificate USING (cert_id)
             WHERE worker_id = ?
@@ -413,6 +431,24 @@ def insert_speciality_if_not_exist(name):
         speciality_id = conn.lastrowid()
         conn.commit()
         return speciality_id
+
+def insert_certificate_if_not_exist(speciality_id, level):
+    with DatabaseConnection() as conn:
+        cert_id = conn.execute("""
+            SELECT cert_id FROM Certificate
+            WHERE speciality_id = ? AND level = ?
+            """, (speciality_id, level))
+        if len(cert_id) > 0:
+            return cert_id[0][0]
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            INSERT INTO Certificate (speciality_id, level)
+            VALUES (?, ?)
+            """, (speciality_id, level))
+        cert_id = conn.lastrowid()
+        conn.commit()
+        return cert_id
 
 def worker_exists(worker_id):
     with DatabaseConnection() as conn:

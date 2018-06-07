@@ -17,11 +17,21 @@ CREATE TABLE Workers (
     work_age INTEGER NOT NULL,
     place_id INTEGER NOT NULL REFERENCES Places(place_id),
     education TEXT NOT NULL,
+    jobs INTEGER NOT NULL DEFAULT 1,
+    projects INTEGER NOT NULL DEFAULT 0,
+    average_project_days INTEGER NOT NULL DEFAULT 30,
+    type_of_projects INTEGER NOT NULL 1, # 1 住宅 2 小区 3 公共建筑 4 办公楼
+    num_of_teams INTEGER NOT NULL DEFAULT 0,
+    type_of_teams INTEGER NOT NULL 1, # 1 世界 2 全国 3 地区领头 4 地区
     --
     UNIQUE (name),
     CHECK (age > 0),
     CHECK (work_age >= 0),
-    CHECK (length(name) > 0)
+    CHECK (length(name) > 0),
+    CHECK (jobs > 0),
+    CHECK (projects > 0),
+    CHECK (average_project_days > 0),
+    CHECK (num_of_teams >= 0)
     -- CHECK (education = '无' or education = '小学'
     --     or education = '初中' or education = '高中'
     --     or education = '大专' or education = '大学'
@@ -86,20 +96,20 @@ CREATE TABLE TeamNeedsSpeciality (
 -- 六级木匠 （相当于中级知识分子）
 CREATE TABLE Certificate (
     cert_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
+    name TEXT,
     speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
-    level INTEGER NOT NULL DEFAULT 1,
+    level INTEGER NOT NULL DEFAULT 0, # 0 none 1 初级 2 中级 3 高级 4 技师
     --
     UNIQUE (name),
     UNIQUE (speciality_id, level),
-    CHECK (length(name) > 0),
-    CHECK (level > 0)
+    -- CHECK (length(name) > 0),
+    CHECK (level >= 0)
 );
 
 CREATE TABLE WorkerHasCert (
     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
     cert_id INTEGER NOT NULL REFERENCES Certificate(cert_id),
-    achieved DATETIME NOT NULL,
+    achieved DATETIME,
     --
     PRIMARY KEY (worker_id, cert_id)
 );

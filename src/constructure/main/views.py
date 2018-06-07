@@ -10,10 +10,15 @@ import json
 
 from match.match import *
 
+DO_MATCHING = False
+
 def build_worker(body):
     worker = Worker(body['name'], body['age'], body['work_age'],
-        body['education'], body['hometown'])
+        body['education'], body['hometown'], body['jobs'], body['projects'],
+        body['average_project_days'], body['type_of_projects'],
+        body['num_of_teams'], body['type_of_teams'])
     worker.specialities.append(body['speciality'])
+    worker.certificates.append(body['certificate'])
     return worker
 
 
@@ -40,8 +45,16 @@ def worker(request):
             starts = ex_team['starts']
             ends = ex_team['ends']
             add_worker_to_team(worker_id, team_id, starts, ends)
-        start_match_calculation(worker_id)
-        return HttpResponse(json.dumps({'msg': 'worker added', 'id': worker_id}))
+
+        if DO_MATCHING:
+            start_match_calculation(worker_id)
+
+        resp_obj = {'msg': 'worker added', 'id': worker_id}
+
+        if DO_COMPETING:
+            resp_obj[] = pass
+
+        return HttpResponse(json.dumps(resp_obj))
 
     return echo(request)
 
