@@ -54,7 +54,7 @@ def worker(request):
 
         if DO_COMPETING:
             worker_level = worker.get_worker_level()
-            resp_obj['worker_level'] = worker_level
+            resp_obj['worker_level'] = 10 if worker_level > 100 else worker_level/100
             update_worker_level(worker_id, worker_level)
             resp_obj['worker_percentile'] = compute_worker_percentile(worker_id)
 
