@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>联技 | 小测试</title>
+	
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link href="css/style.css" rel="stylesheet">
+
+	<script>
+		$(function(){
+		    $(".dropdown-menu li a").click(function(){
+		        $(".drop-down-btn:first-child").text($(this).text());
+		    	$(".drop-down-btn:first-child").val($(this).text());
+		    	sessionStorage.setItem("question3", $(this).text());
+
+		    	// construct JSON object 
+		    	var obj = {};
+		    	obj["question1"] = sessionStorage.getItem("question1");
+		    	obj["question2"] = sessionStorage.getItem("question2");
+		    	obj["question3"] = sessionStorage.getItem("question3");
+		    	var json = JSON.stringify(obj);
+    			console.log(json);
+
+    			// call py views function
+    			
+    			
+		    });
+		});
+	</script>
+
+</head>
+
+<body id="page-top" data-spy="scroll">
+
+	<!-- Navigation -->
+	<section id="navi">
+	    <div id="navigation">
+			<div class="container background-orange">
+			    <div class="row">
+					<div class="col-xs-12 quiz-logo text-center">
+						<p>你的技能有几级？</p>
+					</div>
+			    </div>
+				<!-- /.container -->
+		    </nav>
+	    </div> 
+    </section>
+    <!-- /Navigation --> 
+
+	<!-- Section: quiz-content -->
+    <section id="quiz-content">
+		<div class="container">
+			<div class="progress">
+				<div class="progress-bar" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100" style="width:27%">
+			   		3/12
+			  	</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-12 quiz-title">
+					<p>你现在的岗位是：</p>
+				</div>
+			</div>
+
+			<div class="dropdown text-center">
+			    <button class="drop-down-btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
+			    </button>
+			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+			    	<li><a href="#">砌筑工/泥工/瓦工</a></li>
+			    	<li><a href="#">木工</a></li>
+			    	<li><a href="#">架子工</a></li>
+			    	<li><a href="#">电焊工</a></li>
+			    	<li><a href="#">钢筋工</a></li>
+			    	<li><a href="#">抹灰工</a></li>
+			    	<li><a href="#">钢架构安装工</a></li>
+			    	<li><a href="#">油漆工</a></li>
+			    	<li><a href="#">管道工</a></li>
+			    	<li><a href="#">防水工</a></li>
+			    	<li><a href="#">水电工</a></li>
+			    </ul>
+			</div>
+
+		</div>
+	</section>
+	<!-- /Section: quiz-content -->
+
+	<quiz-footer>
+		<div class="container background-gray">
+			<div class="row">
+				<div class="col-xs-6 text-center">
+					<button class="btn quiz-btn-theme">
+						<a href="question2.html" style="color:#111">上一题</a>
+					</button>
+				</div>
+
+				<div class="col-xs-6 text-center">
+					<button class="btn quiz-btn-theme">
+						<a href="result.html" style="color:#111">下一题</a>
+					</button>
+				</div>
+
+				<div class="col-xs-6 col-xs-offset-6 text-center">
+					<button class="btn terminate-btn-theme">
+						<a href="index.html" style="color:#111">不测了</a>
+					</button>
+				</div>
+			</div>	
+		</div>
+	</quiz-footer>
+</body>
+</html>

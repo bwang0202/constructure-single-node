@@ -1,0 +1,224 @@
+
+@media (max-width:768px) {
+	.site-logo{
+		margin: 0 0 0 30px;
+		float:none;
+	}
+}
+
+@media (max-width:480px) {
+	.site-logo {
+		margin: 10px;
+		float:right;
+	}
+}
+
+/* Welcome page */
+.site-logo {
+	color: #F3A433;
+	font-size: 15px;
+	font-family: 'Yuppy SC';
+	font-weight: 50;
+	margin-top: 80px;
+	margin-bottom: -5px;
+
+}
+
+.paragraph-title-1 {
+	font-size: 40px;
+	font-weight: 400;
+	margin-top: 80px;
+	font-family: 'Yuppy SC';
+}
+.paragraph-title-2 {
+	font-size: 40px;
+	font-weight: 400;
+	margin-top: -10px;
+	margin-bottom: 20px;
+	font-family: 'Yuppy SC';
+}
+
+.paragraph-text-1 {
+	font-size: 18px;
+	font-weight: 20;
+	color: #ffffff;
+	margin-top: 40px;
+	font-family: 'Yuppy SC';
+}
+
+.paragraph-text-2 {
+	font-size: 12px;
+	font-weight: 20;
+	color: #ffffff;
+	margin-top: 20px;
+	margin-bottom: 10px;
+	font-family: 'Yuppy SC';
+}
+
+.background-gray {
+	background: #D8D9D8;
+}
+
+.background-orange {
+	background: #F3A433;
+}
+
+.background-darkgray {
+	background: #9B9B9B;
+}
+
+footer {
+    background-color: #D8D9D8;
+    text-align: center;
+	padding: 50px 0 ;
+}
+
+.btn-theme {
+    color: #111;
+    background-color: #F3A433;
+    border: 2px solid #ffffff;
+    margin-right: 15px;
+    letter-spacing: 2px;
+    font-size: 26px;
+    padding: 10px 40px;
+    border-radius: 12px;
+}
+
+/* Quiz pages */
+.quiz-logo {
+	font-size: 30px;
+	font-weight: 400;
+	color: #111;
+	margin-top: 40px;
+	margin-bottom: 30px;
+	font-family: 'Yuppy SC';
+}
+
+.quiz-btn-theme {
+    color: #111;
+    background-color: #F3A433;
+    border: 2px solid #ffffff;
+    letter-spacing: 2px;
+    font-size: 26px;
+    padding: 10px 20px;
+    margin-top: 30px;
+    border-radius: 12px;
+    font-family: 'Microsoft YaHei';
+}
+
+.terminate-btn-theme {
+	color: #111;
+    background-color: #D8D9D8;
+    border: 2px solid #D8D9D8;
+    letter-spacing: 2px;
+    font-size: 15px;
+    font-weight: 200;
+    font-family: 'Microsoft YaHei';
+}
+
+.progress {
+    overflow: hidden;
+    height: 16px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: #9B9B9B;
+    border-radius: 2px;
+    margin-left: 10px;
+}
+
+.progress-bar {
+	background-color: #F3A433;
+	font-size: 14px;
+    color: #111;
+
+}
+
+.quiz-title {
+	font-size: 30px;
+	font-weight: 300;
+	margin-top: 30px;
+	margin-bottom: 30px;
+	margin-left: 50px;
+	font-family: 'Microsoft YaHei';
+}
+
+.dropdown {
+    position: relative;
+    margin-bottom: 200px;
+}
+
+.drop-down-btn {
+    display: inline-block;
+    padding: 10px 100px;
+    margin-bottom: 0;
+    font-size: 18px;
+    font-weight: 200;
+    color: #111;
+    background-color: #fff;
+    border-color: #111;
+    border-radius: 12px;
+    font-family: 'Microsoft YaHei';
+}
+
+primary:active:focus, .btn-primary:active:hover, .open>.dropdown-toggle.btn-primary:focus, .open>.dropdown-toggle.btn-primary:hover{    
+	color: #fff;
+    background-color: #F3A433;
+    border-color: #111;
+}
+
+quiz-footer {
+    background-color: #D8D9D8;
+    text-align: center;
+}
+
+
+/* result page */
+
+.share-wechat-btn-theme {
+	color: #111;
+    background-color: #D8D9D8;
+    border: 2px solid #D8D9D8;
+    letter-spacing: 2px;
+    font-size: 25px;
+    font-weight: 500;
+    margin-top: 30px;
+}
+
+.result-title {
+	font-size: 30px;
+	font-weight: 130;
+	color: #fff;
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
+
+.result-text {
+	font-size: 20px;
+	font-weight: 100;
+	color: #fff;
+	margin-top: 30px;
+	margin-bottom: 30px;
+}
+
+.result-progress {
+    overflow: hidden;
+    height: 20px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-radius: 2px;
+    margin-left: 10px;
+}
+
+.result-progress-bar {
+	background-color: #F3A433;
+	font-size: 16px;
+    color: #111;
+}
+
+
+
+
+
+
+

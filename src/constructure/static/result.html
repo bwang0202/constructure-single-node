@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>联技 | 小测试</title>
+	
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <link href="css/style.css" rel="stylesheet">
+
+	<script>
+		$(function(){
+		    $(".dropdown-menu li a").click(function(){
+		    	$(".drop-down-btn:first-child").text($(this).text());
+		     	$(".drop-down-btn:first-child").val($(this).text());
+		  	});
+		});
+	</script>
+
+</head>
+
+<body id="page-top" data-spy="scroll">
+
+	<!-- Navigation -->
+	<section id="navi">
+	    <div id="navigation">
+			<div class="container background-orange">
+			    <div class="row">
+					<div class="col-xs-12 quiz-logo text-center">
+						<p>你的技能有几级？</p>
+					</div>
+			    </div>
+				<!-- /.container -->
+		    </nav>
+	    </div> 
+    </section>
+    <!-- /Navigation --> 
+
+	<!-- Section: result-content -->
+    <section id="result-content">
+		<div class="container background-darkgray">
+
+			<div class="row">
+				<div class="col-xs-12 result-title text-center">
+					<p>您领先于 <span style="color:#DE6537; font-weight:200">76%</span> 的工友！</p>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-8 result-text text-center">
+					<p>被授予 <span style="color:#DE6537; font-weight:400">优秀工人</span> 勋章</p>
+				</div>
+				<div class="col-xs-4">
+					<img style="float:right" src="img/icon-2.png"/>
+				</div>
+			</div>
+
+			<div class="result-progress">
+				<div class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100" style="width:76%">
+			   		技能值
+			  	</div>
+			</div>
+
+			<div class="result-progress">
+				<div class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100" style="width:56%">
+			   		经验值
+			  	</div>
+			</div>
+
+			<div class="result-progress">
+				<div class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width:80%">
+			   		综合吸引力
+			  	</div>
+			</div>
+
+		</div>
+	</section>
+	<!-- /Section: result-content -->
+
+	<quiz-footer>
+		<div class="container background-gray">
+			<div class="row">
+				<div class="col-xs-12 text-center">
+					<button class="btn share-wechat-btn-theme">
+						<a href="xxx.html" style="color:#111">分享结果到微信</a>
+					</button>
+				</div>
+			</div>	
+
+			<div class="row">
+				<div class="col-xs-12 text-center">
+					<button class="btn terminate-btn-theme">
+						<a href="index.html" style="color:#111">返回</a>
+					</button>
+				</div>
+			</div>
+		</div>
+	</quiz-footer>
+</body>
+</html>
