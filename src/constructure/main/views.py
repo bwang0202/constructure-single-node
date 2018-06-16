@@ -13,6 +13,9 @@ from match.match import *
 DO_MATCHING = False
 DO_COMPETING = True
 
+def index(request):
+    return HttpResponse('My first view.')
+
 def build_worker(body):
     worker = Worker(body['name'], body['age'], body['work_age'],
         body['education'], body['hometown'], body['jobs'], body['projects'],
