@@ -20,9 +20,9 @@ CREATE TABLE Workers (
     jobs INTEGER NOT NULL DEFAULT 1,
     projects INTEGER NOT NULL DEFAULT 0,
     average_project_days INTEGER NOT NULL DEFAULT 30,
-    type_of_projects INTEGER NOT NULL 1, # 1 住宅 2 小区 3 公共建筑 4 办公楼
+    type_of_projects INTEGER NOT NULL DEFAULT 1,
     num_of_teams INTEGER NOT NULL DEFAULT 0,
-    type_of_teams INTEGER NOT NULL 1, # 1 世界 2 全国 3 地区领头 4 地区
+    type_of_teams INTEGER NOT NULL DEFAULT 1,
     worker_level INTEGER NOT NULL DEFAULT 50,
     --
     UNIQUE (name),
@@ -99,7 +99,7 @@ CREATE TABLE Certificate (
     cert_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
-    level INTEGER NOT NULL DEFAULT 0, # 0 none 1 初级 2 中级 3 高级 4 技师
+    level INTEGER NOT NULL DEFAULT 0,
     --
     UNIQUE (name),
     UNIQUE (speciality_id, level),

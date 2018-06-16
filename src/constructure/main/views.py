@@ -40,15 +40,17 @@ def worker(request):
         return HttpResponse(json.dumps({'data':get_workers()}))
     elif request.method == "POST":
         #curl -XPOST http://localhost:8000/user/worker/ -d '{"key1":"value1"}'
+        print(request.body)
         body = json.loads(request.body)
         worker = build_worker(body)
         worker_id = add_worker(worker)
-        ex_teams = body['ex_teams']
-        for ex_team in ex_teams:
-            team_id = ex_team['team_id']
-            starts = ex_team['starts']
-            ends = ex_team['ends']
-            add_worker_to_team(worker_id, team_id, starts, ends)
+        if 'ex_teams' in body:
+            ex_teams = body['ex_teams']
+            for ex_team in ex_teams:
+                team_id = ex_team['team_id']
+                starts = ex_team['starts']
+                ends = ex_team['ends']
+                add_worker_to_team(worker_id, team_id, starts, ends)
 
         if DO_MATCHING:
             start_match_calculation(worker_id)
@@ -57,7 +59,7 @@ def worker(request):
 
         if DO_COMPETING:
             worker_level = worker.get_worker_level()
-            resp_obj['worker_level'] = 10 if worker_level > 100 else worker_level/100
+            resp_obj['worker_level'] = 10 if worker_level > 100 else worker_level/10
             update_worker_level(worker_id, worker_level)
             resp_obj['worker_percentile'] = compute_worker_percentile(worker_id)
 

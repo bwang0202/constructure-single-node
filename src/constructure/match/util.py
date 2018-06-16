@@ -19,9 +19,6 @@ class Speciality:
             return "%s %s" % (self.name, self.certificate_name)
         return self.name
 
-class Certificate:
-    def __init__(self, name, )
-
 class Worker:
     def __init__(self, name, age, work_age, education,
             hometown, jobs, projects, average_project_days,
@@ -61,13 +58,13 @@ class Worker:
         if self.worker_level:
             return self.worker_level
         base = 1
-        if len(certificates) > 0: # 0 - 5
-            base += certificates[0]
-        base += education # 0-6
-        base += 4 if work_age > 10 else (work_age + 2) / 3 # 0 - 4
-        base += 4 if jobs > 10 else (jobs + 2) / 3 # 0 - 4
-        base += type_of_teams # 1 - 4
-        base += 4 if average_project_days > 180 else average_project_days / 45 # 0 -4
+        if len(self.certificates) > 0: # 0 - 5
+            base += self.certificates[0]
+        base += self.education # 0-6
+        base += 4 if self.work_age > 10 else (self.work_age + 2) / 3 # 0 - 4
+        base += 4 if self.jobs > 10 else (self.jobs + 2) / 3 # 0 - 4
+        base += self.type_of_teams # 1 - 4
+        base += 4 if self.average_project_days > 180 else self.average_project_days / 45 # 0 -4
         self.worker_level = int(base * 100 / (1 + 5 + 6 + 4 + 4 + 4 + 4))
         return self.worker_level
 
@@ -90,12 +87,12 @@ def compute_worker_percentile(worker_id):
     with DatabaseConnection() as conn:
         total = conn.execute("""
             SELECT count(worker_id) FROM workers
-            """)
+            """)[0][0]
         lower = conn.execute("""
             SELECT count(worker_id) FROM Workers
             WHERE worker_level <= (SELECT worker_level FROM Workers WHERE worker_id = ?)
-            """, (worker_id, ))
-        return lower * 1.0 / total
+            """, (worker_id, ))[0][0]
+        return (lower + 0.0) / total
 
 
 def add_worker(worker):
@@ -107,7 +104,7 @@ def add_worker(worker):
         conn.begin()
         conn.execute("""
             INSERT INTO Workers (name, age, work_age, place_id, education, jobs, projects, average_project_days, type_of_projects, num_of_teams, type_of_teams)
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (worker.name, worker.age, worker.work_age, place_id, worker.education, worker.jobs, worker.projects, worker.average_project_days, worker.type_of_projects, worker.num_of_teams, worker.type_of_teams))
         worker_id = conn.lastrowid()
         conn.commit()
