@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,7 +13,7 @@
 	
     <!-- css -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
 </head>
 
 <body id="page-top" data-spy="scroll">
@@ -53,7 +55,7 @@
 						<p>你有多大竞争力？</p>
 				</div>
 				<div class="col-xs-4">
-					<img style="float:right" src="img/icon.png"/>
+					<img style="float:right" src="{% static 'img/icon.png' %}"/>
 				</div>
 				
 			<div class="row"> 
@@ -72,7 +74,7 @@
 				<div class="col-xs-12">
 					<div class="text-center">
 						<button class="btn btn-theme">
-							<a href="question1.html" style="color:#111">开始</a>
+							<a href="{% url 'question1' %}" style="color:#111">开始</a>
 						</button>
 					</div>
 				</div>

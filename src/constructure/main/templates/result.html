@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,7 +15,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
 
 	<script>
 		$(function(){
@@ -58,7 +60,7 @@
 					<p>被授予 <span style="color:#DE6537; font-weight:400">优秀工人</span> 勋章</p>
 				</div>
 				<div class="col-xs-4">
-					<img style="float:right" src="img/icon-2.png"/>
+					<img style="float:right" src="{% static 'img/icon-2.png' %}"/>
 				</div>
 			</div>
 
@@ -97,7 +99,7 @@
 			<div class="row">
 				<div class="col-xs-12 text-center">
 					<button class="btn terminate-btn-theme">
-						<a href="index.html" style="color:#111">返回</a>
+						<a href="{% url 'index' %}" style="color:#111">返回</a>
 					</button>
 				</div>
 			</div>

@@ -13,8 +13,9 @@ from match.match import *
 DO_MATCHING = False
 DO_COMPETING = True
 
-def index(request):
-    return HttpResponse('My first view.')
+def test(request):
+    print('this is a test log')
+    return HttpResponse('Testing view.')
 
 def build_worker(body):
     worker = Worker(body['name'], body['age'], body['work_age'],
@@ -35,6 +36,7 @@ def echo(request):
         return HttpResponse("%s, %s, %s" % (request.method, request.path, request.body))
 
 def worker(request):
+    print('inside worker view function')
     if request.method == "GET":
         #GET http://localhost:8000/user/worker/?q=1&arg2=2
         return HttpResponse(json.dumps({'data':get_workers()}))
