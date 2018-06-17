@@ -22,7 +22,7 @@
 		    $(".dropdown-menu li a").click(function(){
 		        $(".drop-down-btn:first-child").text($(this).text());
 		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("question3", $(this).text());    			
+		    	sessionStorage.setItem("speciality", $(this).text());    			
 		    });
 		});
 	</script>
@@ -30,26 +30,35 @@
 	<script >
 		$(function(){
 			$("#btnViewResult").click(function(){
-				// construct JSON object 
-		    	var obj = {};
-		    	obj["question1"] = sessionStorage.getItem("question1");
-		    	obj["question2"] = sessionStorage.getItem("question2");
-		    	obj["question3"] = sessionStorage.getItem("question3");
-		    	var json = JSON.stringify(obj);
-    			console.log(json);
-
-    			/*
-				 Example json template:
+    			/* construct JSON object 
+				  Example json template:
 				  {'name':'xing ming', 'age': 40, 'work_age': 20, 'education': 3, 'hometown': 'Sichuan, Chengdu', 
 				   'jobs': 4, 'projects': 10, 'average_project_days': 100, 'type_of_projects': 2, 'num_of_teams': 2, 
 				   'type_of_teams': 2, 'speciality': 'mujiang', 'certificate': 1} Response: {'msg':'worker added', 
 				   'worker_id': 123, 'worker_level': 6, 'worker_percentile': 34}
     			 */
+    			// TODO: pupolate actual data into json after rest of the pages are implemented
+		    	var obj = {};
+		    	obj["name"] = 'xing ming';
+		    	obj["age"] = sessionStorage.getItem("age");
+		    	obj["work_age"] = '20';
+		    	obj["education"] = '3';
+		    	obj["hometown"] = sessionStorage.getItem("hometown");
+		    	obj["jobs"] = '4';
+		    	obj["projects"] = '10';
+		    	obj["average_project_days"] = '100';
+		    	obj["type_of_projects"] = '2';
+		    	obj["num_of_teams"] = '2';
+		    	obj["type_of_teams"] = '2';
+		    	obj["speciality"] = sessionStorage.getItem("speciality");
+		    	obj["certificate"] = '1';
+		    	var json = JSON.stringify(obj);
+    			console.log(json);
 
     			// call py views function
 				$.ajax({
 					type: "POST",
-				  	url: "{% url 'worker' %}",
+				  	url: "{% url 'test worker' %}",		// TODO: change function url to 'worker' after testing complete
 				  	data: json,
 				  	success: function(){},
 				  	dataType: "json",

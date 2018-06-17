@@ -69,6 +69,13 @@ def worker(request):
 
     return echo(request)
 
+# test the flow of html template pass json object via ajax into views function and render result page
+def test_worker(request):
+    print('inside test worker view function')
+    print(request.body)
+
+    
+
 def team(request):
     if request.method == "GET":
         # GET all teams
