@@ -5,6 +5,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.http import HttpResponse
+from django.shortcuts import render_to_response
 
 import json
 
@@ -74,8 +75,10 @@ def test_worker(request):
     print('inside test worker view function')
     print(request.body)
 
-    
+    response = {'status':1, 'msg':'worker added', 'worker_id': 123, 'worker_percentile': 76, 'skill_percentile': 70, 'experience_percentile': 80, 'overall_percentile': 76}
 
+    return HttpResponse(json.dumps(response), content_type='application/json')
+     
 def team(request):
     if request.method == "GET":
         # GET all teams

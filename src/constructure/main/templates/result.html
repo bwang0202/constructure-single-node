@@ -26,9 +26,17 @@
 		});
 	</script>
 
+	<script>
+        function dataUpdate() {
+        	// TODO: update element with parameter from session storage
+            document.getElementById("aheadPerctg").textContent="78%";
+            document.getElementById("skillPerctg").setAttribute("aria-valuenow", sessionStorage.getItem("skillPerctg"));
+            document.getElementById("skillPerctg").setAttribute("style", "width:" + sessionStorage.getItem("skillPerctg") + "%");
+        }
+    </script>
 </head>
 
-<body id="page-top" data-spy="scroll">
+<body id="page-top" data-spy="scroll" onload="dataUpdate()">
 
 	<!-- Navigation -->
 	<section id="navi">
@@ -51,7 +59,7 @@
 
 			<div class="row">
 				<div class="col-xs-12 result-title text-center">
-					<p>您领先于 <span style="color:#DE6537; font-weight:200">76%</span> 的工友！</p>
+					<p>您领先于 <span id="aheadPerctg" style="color:#DE6537; font-weight:200">00%</span> 的工友！</p>
 				</div>
 			</div>
 
@@ -65,7 +73,7 @@
 			</div>
 
 			<div class="result-progress">
-				<div class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="76" aria-valuemin="0" aria-valuemax="100" style="width:76%">
+				<div id="skillPerctg" class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="00" aria-valuemin="0" aria-valuemax="100" style="width:00%">
 			   		技能值
 			  	</div>
 			</div>

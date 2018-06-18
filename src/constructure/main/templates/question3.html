@@ -60,7 +60,16 @@
 					type: "POST",
 				  	url: "{% url 'test worker' %}",		// TODO: change function url to 'worker' after testing complete
 				  	data: json,
-				  	success: function(){},
+				  	success: function(response){
+				  		if (response.status == 1) {
+				  			// TODO: load response parameter into sessionStorage
+				  			sessionStorage.setItem("skillPerctg", "80");
+				  			location.assign("{% url 'result' %}");
+				  		}
+				    },
+				  	error: function(response){
+				  		console.log(response.msg);
+				  	},
 				  	dataType: "json",
 				  	contentType : "application/json"
 				});
