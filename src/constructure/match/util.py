@@ -64,9 +64,18 @@ class Worker:
         base += 4 if self.work_age > 10 else (self.work_age + 2) / 3 # 0 - 4
         base += 4 if self.jobs > 10 else (self.jobs + 2) / 3 # 0 - 4
         base += self.type_of_teams # 1 - 4
+        base += 3 if self.projects > 9 else self.projects/3 # 0 - 3
         base += 4 if self.average_project_days > 180 else self.average_project_days / 45 # 0 -4
-        self.worker_level = int(base * 100 / (1 + 5 + 6 + 4 + 4 + 4 + 4))
+        self.worker_level = int(base * 100 / (1 + 5 + 6 + 4 + 4 + 4 + 4 + 3))
         return self.worker_level
+
+    def compute_worker_experience(self):
+        return self.type_of_teams + (3 if self.projects > 9 else self.projects/3) \
+             + (3 if self.average_project_days > 180 else self.average_project_days/60)
+
+    def compute_worker_skill(self):
+        return 2 + (4 if self.jobs > 4 else self.jobs) \
+             + (self.certificates[0] if len(self.certificates) > 0 else 0)
 
 class Team:
     def __init__(self, name, team_id=None):

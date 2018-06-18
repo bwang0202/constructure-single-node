@@ -10,7 +10,8 @@ pcregrep --color="auto" -n "[^\x00-\x7F]" <file path>
 2. TODO:
         a. https://blog.csdn.net/xjtarzan/article/details/51492106
 	b. Try deploy in AWS (django)
-	c. zhongwen
+	c. One headshot for each worker
+    d. id card number
 
 Demo Front End Notes & API:
     Request:
@@ -33,10 +34,12 @@ Demo Front End Notes & API:
     {"msg":"worker added",
      "worker_id": 123,
      "worker_level": 6,
-     "worker_percentile": 34}
+     "worker_percentile": 34,
+     "worker_skill": 5,
+     "worker_experience": 5}
 
 
-{"name":"xing ming2",
+{"name":"姓名",
      "age": 40,
      "work_age": 20,
      "education": 3,

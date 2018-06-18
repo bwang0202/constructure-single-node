@@ -25,7 +25,6 @@ CREATE TABLE Workers (
     type_of_teams INTEGER NOT NULL DEFAULT 1,
     worker_level INTEGER NOT NULL DEFAULT 50,
     --
-    UNIQUE (name),
     CHECK (age > 0),
     CHECK (work_age >= 0),
     CHECK (length(name) > 0),
