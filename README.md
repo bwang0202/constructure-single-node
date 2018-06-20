@@ -9,9 +9,7 @@ pcregrep --color="auto" -n "[^\x00-\x7F]" <file path>
 
 2. TODO:
         a. https://blog.csdn.net/xjtarzan/article/details/51492106
-	b. Try deploy in AWS (django)
-	c. One headshot for each worker
-    d. id card number
+	    b. Try deploy in AWS (django)
 
 Demo Front End Notes & API:
     Request:
