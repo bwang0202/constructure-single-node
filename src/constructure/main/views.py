@@ -13,13 +13,19 @@ from match.match import *
 DO_MATCHING = False
 DO_COMPETING = True
 
+education_enum = {"小学": 1, "初中": 2, "高中": 3, "本科": 4}
+certificate_enum = {"尚未认证": 0, "初级": 1, "中级": 2, "高级": 3, "技师": 4}
+projects_enum = {"单独住宅": 1, "住宅小区": 2, "公共建筑": 3, "办公楼": 4}
+teams_enum = {"世界企业": 1, "全国企业": 2, "地区领头企业": 3, "地区企业": 4}
+
+
 def build_worker(body):
     worker = Worker(body['name'], body['age'], body['work_age'],
-        body['education'], body['hometown'], body['jobs'], body['projects'],
-        body['average_project_days'], body['type_of_projects'],
-        body['num_of_teams'], body['type_of_teams'])
+        education_enum.get(body['education'], 1), body['hometown'], body['jobs'], body['projects'],
+        body['average_project_days'], projects_enum.get(body['type_of_projects'], 1),
+        body['num_of_teams'], teams_enum.get(body['type_of_teams'], 4))
     worker.specialities.append(body['speciality'])
-    worker.certificates.append(body['certificate'])
+    worker.certificates.append(certificate_enum.get(body['certificate'], 0))
     return worker
 
 
