@@ -21,6 +21,7 @@ from main import views
 urlpatterns = [
 	url(r'^$', views.test),                                                                                # testing purposes
 	url(r'^index/$', TemplateView.as_view(template_name='index.html'), name='index'),
+    url(r'^question0/$', TemplateView.as_view(template_name='question0.html'), name='question0'),
     url(r'^question1/$', TemplateView.as_view(template_name='question1.html'), name='question1'),
     url(r'^question2/$', TemplateView.as_view(template_name='question2.html'), name='question2'),
     url(r'^question3/$', TemplateView.as_view(template_name='question3.html'), name='question3'),

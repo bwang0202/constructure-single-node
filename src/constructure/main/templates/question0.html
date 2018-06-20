@@ -18,13 +18,9 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
 
 	<script>
-		$(function(){
-			$(".dropdown-menu li a").click(function(){
-		    	$(".drop-down-btn:first-child").text($(this).text());
-		     	$(".drop-down-btn:first-child").val($(this).text());
-		     	sessionStorage.setItem("age", $(this).text());
-		  	});
-		});
+		function storeName() {
+    		sessionStorage.setItem("name", document.getElementById("nameText").value);
+		}
 	</script>
 
 </head>
@@ -49,28 +45,15 @@
 	<!-- Section: quiz-content -->
     <section id="quiz-content">
 		<div class="container">
-			<div class="progress">
-				<div class="progress-bar" role="progressbar" aria-valuenow="9" aria-valuemin="0" aria-valuemax="100" style="width:9%">
-			   		1/12
-			  	</div>
-			</div>
-
 			<div class="row">
 				<div class="col-xs-8 quiz-title">
-					<p>年龄：</p>
+					<p>我叫：</p>
 				</div>
 			</div>
 
-			<div class="dropdown text-center">
-			    <button class="drop-down-btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">20 - 29</a></li>
-			    	<li><a href="#">30 - 39</a></li>
-			    	<li><a href="#">40 - 49</a></li>
-			    	<li><a href="#">> 50</a></li>
-			    </ul>
-			</div>
+			<form class="dropdown text-center">
+			    <a style="color:#111;font-size: 24px;font-family: 'Microsoft YaHei'">（姓名）</a><input type="text" id="nameText" name="FullName">
+			</form>
 
 		</div>
 	</section>
@@ -79,15 +62,9 @@
 	<quiz-footer>
 		<div class="container background-gray">
 			<div class="row">
-				<div class="col-xs-6 text-center">
-					<button class="btn quiz-btn-theme">
-						<a href="{% url 'question0' %}" style="color:#111">上一题</a>
-					</button>
-				</div>
-
-				<div class="col-xs-6 text-center">
-					<button class="btn quiz-btn-theme">
-						<a href="{% url 'question2' %}" style="color:#111">下一题</a>
+				<div class="col-xs-6 col-xs-offset-6 text-center">
+					<button class="btn quiz-btn-theme" onclick="storeName()">
+						<a href="{% url 'question1' %}" style="color:#111">下一题</a>
 					</button>
 				</div>
 
