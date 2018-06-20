@@ -22,8 +22,58 @@
 		    $(".dropdown-menu li a").click(function(){
 		        $(".drop-down-btn:first-child").text($(this).text());
 		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("speciality", $(this).text());    			
+		    	sessionStorage.setItem("eudcation", $(this).text());    			
 		    });
+		});
+	</script>
+
+	<script >
+		$(function(){
+			$("#btnViewResult").click(function(){
+    			/* construct JSON object 
+				  Example json template:
+				  {'name':'xing ming', 'age': 40, 'work_age': 20, 'education': 3, 'hometown': 'Sichuan, Chengdu', 
+				   'jobs': 4, 'projects': 10, 'average_project_days': 100, 'type_of_projects': 2, 'num_of_teams': 2, 
+				   'type_of_teams': 2, 'speciality': 'mujiang', 'certificate': 1} Response: {'msg':'worker added', 
+				   'worker_id': 123, 'worker_level': 6, 'worker_percentile': 34}
+    			 */
+    			// TODO: pupolate actual data into json after rest of the pages are implemented
+		    	var obj = {};
+		    	obj["name"] = 'xing ming';
+		    	obj["age"] = sessionStorage.getItem("age");
+		    	obj["work_age"] = '20';
+		    	obj["education"] = '3';
+		    	obj["hometown"] = sessionStorage.getItem("hometown");
+		    	obj["jobs"] = '4';
+		    	obj["projects"] = '10';
+		    	obj["average_project_days"] = '100';
+		    	obj["type_of_projects"] = '2';
+		    	obj["num_of_teams"] = '2';
+		    	obj["type_of_teams"] = '2';
+		    	obj["speciality"] = sessionStorage.getItem("speciality");
+		    	obj["certificate"] = '1';
+		    	var json = JSON.stringify(obj);
+    			console.log(json);
+
+    			// call py views function
+				$.ajax({
+					type: "POST",
+				  	url: "{% url 'test worker' %}",		// TODO: change function url to 'worker' after testing complete
+				  	data: json,
+				  	success: function(response){
+				  		if (response.status == 1) {
+				  			// TODO: load response parameter into sessionStorage
+				  			sessionStorage.setItem("skillPerctg", "80");
+				  			location.assign("{% url 'result' %}");
+				  		}
+				    },
+				  	error: function(response){
+				  		console.log(response.msg);
+				  	},
+				  	dataType: "json",
+				  	contentType : "application/json"
+				});
+			});
 		});
 	</script>
 </head>
@@ -49,14 +99,14 @@
     <section id="quiz-content">
 		<div class="container">
 			<div class="progress">
-				<div class="progress-bar" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100" style="width:27%">
-			   		3/12
+				<div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+			   		12/12
 			  	</div>
 			</div>
 
 			<div class="row">
 				<div class="col-xs-12 quiz-title">
-					<p>你现在的岗位是：</p>
+					<p>在__读过书：</p>
 				</div>
 			</div>
 
@@ -64,17 +114,10 @@
 			    <button class="drop-down-btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
 			    </button>
 			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">砌筑工/泥工/瓦工</a></li>
-			    	<li><a href="#">木工</a></li>
-			    	<li><a href="#">架子工</a></li>
-			    	<li><a href="#">电焊工</a></li>
-			    	<li><a href="#">钢筋工</a></li>
-			    	<li><a href="#">抹灰工</a></li>
-			    	<li><a href="#">钢架构安装工</a></li>
-			    	<li><a href="#">油漆工</a></li>
-			    	<li><a href="#">管道工</a></li>
-			    	<li><a href="#">防水工</a></li>
-			    	<li><a href="#">水电工</a></li>
+			    	<li><a href="#">高中</a></li>
+			    	<li><a href="#">小学</a></li>
+			    	<li><a href="#">本科</a></li>
+			    	<li><a href="#">初中</a></li>
 			    </ul>
 			</div>
 
@@ -87,13 +130,13 @@
 			<div class="row">
 				<div class="col-xs-6 text-center">
 					<button class="btn quiz-btn-theme">
-						<a href="{% url 'question2' %}" style="color:#111">上一题</a>
+						<a href="{% url 'question11' %}" style="color:#111">上一题</a>
 					</button>
 				</div>
 
 				<div class="col-xs-6 text-center">
 				    <button class="btn quiz-btn-theme" type="submit" id="btnViewResult">
-						<a href="{% url 'question4' %}" style="color:#111">下一题</a>
+						<a style="color:#111">看结果</a>
 					</button>
 				</div>
 

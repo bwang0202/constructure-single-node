@@ -22,7 +22,7 @@
 		    $(".dropdown-menu li a").click(function(){
 		        $(".drop-down-btn:first-child").text($(this).text());
 		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("speciality", $(this).text());    			
+		    	sessionStorage.setItem("jobs", $(this).text());    			
 		    });
 		});
 	</script>
@@ -49,32 +49,26 @@
     <section id="quiz-content">
 		<div class="container">
 			<div class="progress">
-				<div class="progress-bar" role="progressbar" aria-valuenow="27" aria-valuemin="0" aria-valuemax="100" style="width:27%">
-			   		3/12
+				<div class="progress-bar" role="progressbar" aria-valuenow="36" aria-valuemin="0" aria-valuemax="100" style="width:36%">
+			   		4/12
 			  	</div>
 			</div>
 
 			<div class="row">
 				<div class="col-xs-12 quiz-title">
-					<p>你现在的岗位是：</p>
+					<p>你曾在土建施工行业</p>
+					<p>做过__种工作？</p>
 				</div>
 			</div>
 
-			<div class="dropdown text-center">
-			    <button class="drop-down-btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
+			<div class="dropdown text-center" style="margin-bottom: 150px">
+			    <button class="drop-down-btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
 			    </button>
 			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">砌筑工/泥工/瓦工</a></li>
-			    	<li><a href="#">木工</a></li>
-			    	<li><a href="#">架子工</a></li>
-			    	<li><a href="#">电焊工</a></li>
-			    	<li><a href="#">钢筋工</a></li>
-			    	<li><a href="#">抹灰工</a></li>
-			    	<li><a href="#">钢架构安装工</a></li>
-			    	<li><a href="#">油漆工</a></li>
-			    	<li><a href="#">管道工</a></li>
-			    	<li><a href="#">防水工</a></li>
-			    	<li><a href="#">水电工</a></li>
+			    	<li><a href="#">1</a></li>
+			    	<li><a href="#">2</a></li>
+			    	<li><a href="#">3</a></li>
+			    	<li><a href="#">>3</a></li>
 			    </ul>
 			</div>
 
@@ -87,13 +81,13 @@
 			<div class="row">
 				<div class="col-xs-6 text-center">
 					<button class="btn quiz-btn-theme">
-						<a href="{% url 'question2' %}" style="color:#111">上一题</a>
+						<a href="{% url 'question3' %}" style="color:#111">上一题</a>
 					</button>
 				</div>
 
 				<div class="col-xs-6 text-center">
 				    <button class="btn quiz-btn-theme" type="submit" id="btnViewResult">
-						<a href="{% url 'question4' %}" style="color:#111">下一题</a>
+						<a href="{% url 'question5' %}" style="color:#111">下一题</a>
 					</button>
 				</div>
 
