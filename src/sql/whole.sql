@@ -13,15 +13,15 @@ CREATE TABLE Places (
 CREATE TABLE Workers (
     worker_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    age INTEGER NOT NULL,
-    work_age INTEGER NOT NULL,
+    card_id TEXT NOT NULL,
+    pwd TEXT NOT NULL,
     place_id INTEGER NOT NULL REFERENCES Places(place_id),
-    education TEXT NOT NULL,
+    picture TEXT,
+    certified INTEGER NOT NULL DEFAULT 0,
     --
     UNIQUE (name),
-    CHECK (age > 0),
-    CHECK (work_age >= 0),
-    CHECK (length(name) > 0)
+    CHECK (length(card_id) > 0),
+    CHECK (length(pwd) > 0)
     -- CHECK (education = '无' or education = '小学'
     --     or education = '初中' or education = '高中'
     --     or education = '大专' or education = '大学'
@@ -33,9 +33,32 @@ CREATE TABLE Workers (
 CREATE TABLE Teams (
     team_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    pwd TEXT NOT NULL,
+    registration_id TEXT NOT NULL,
+    picture TEXT,
     --
     UNIQUE(name),
-    CHECK (length(name) > 0)
+    CHECK (length(name) > 0),
+    CHECK (length(registration_id) > 0),
+    CHECK (length(pwd) > 0)
+);
+
+-- Labor teams
+CREATE TABLE LaborTeams (
+    laborteam_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    picture TEXT NOT NULL,
+    --
+    UNIQUE(name),
+    CHECK (length(name) > 0),
+    CHECK (length(picture) > 0)
+);
+
+CREATE TABLE TeamWorksWithLaborTeams (
+    team_id INTEGER NOT NULL REFERENCES Teams(team_id),
+    laborteam_id INTEGER NOT NULL REFERENCES LaborTeams(laborteam_id),
+    --
+    PRIMARY KEY (team_id, laborteam_id)
 );
 
 -- Worker may just already know someone outside the scope of this db
@@ -96,13 +119,13 @@ CREATE TABLE Certificate (
     CHECK (level > 0)
 );
 
-CREATE TABLE WorkerHasCert (
-    worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
-    cert_id INTEGER NOT NULL REFERENCES Certificate(cert_id),
-    achieved DATETIME NOT NULL,
-    --
-    PRIMARY KEY (worker_id, cert_id)
-);
+-- CREATE TABLE WorkerHasCert (
+--     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
+--     cert_id INTEGER NOT NULL REFERENCES Certificate(cert_id),
+--     achieved DATETIME NOT NULL,
+--     --
+--     PRIMARY KEY (worker_id, cert_id)
+-- );
 
 CREATE TABLE WorkerHasSpeciality (
     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
@@ -116,6 +139,7 @@ CREATE TABLE Projects (
     project_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     place_id INTEGER NOT NULL REFERENCES Places(place_id),
+    picture TEXT,
     --
     UNIQUE (name, place_id),
     CHECK (length(name) > 0)
