@@ -9,4 +9,3 @@ pcregrep --color='auto' -n '[^\x00-\x7F]' <file path>
 
 2. TODO:
 	a. Try deploy in AWS (django)
-    b. One headshot for each worker d. id card number

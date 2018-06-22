@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 # Constructure 1.0
 # Bojun Wang, May 2018
 # TODO FIX LIMIT 1
@@ -8,49 +10,38 @@ import config
 from model import *
 from match import *
 
+class ResouceNotFound(Exception):
+    pass
+
 class Speciality:
-    def __init__(self, name, certificate_name=None,
-            speciality_id=None):
+    def __init__(self, name, speciality_id=None):
         self.name = name
-        self.certificate_name = certificate_name
         self.speciality_id = speciality_id
     def __str__(self):
-        if self.certificate_name:
-            return "%s %s" % (self.name, self.certificate_name)
         return self.name
 
 class Worker:
-    def __init__(self, name, age, work_age, education,
-            hometown, worker_id=None):
+    def __init__(self, name, pwd, card_id, picture, hometown, speciality, worker_id=None):
         self.name = name
-        self.age = age
-        self.work_age = work_age
-        self.education = education
+        self.picture = picture
+        self.pwd = pwd
+        self.card_id = card_id
         self.hometown = hometown
-        self.specialities = []
-        self.certificates = []
+        self.speciality = speciality
         self.worker_id = worker_id
     def __str__(self):
-        result = [self.name, self.hometown]
-        if self.specialities:
-            result.append(self.specialities[0])
-        result.append("work years %d" % self.work_age)
-        if len(result) < 5:
-            result.append("hometown %s" % self.hometown)
-        if len(result) < 5:
-            result.append("age %s" % self.age)
-        return ", ".join(result)
-
-    def add_speciality(self, speciality):
-        self.specialities.append(speciality)
-        return self
+        strs = [self.name, self.speciality, "ID %s" % self.card_id[-4:]]
+        return ", ".join(strs)
 
 class Team:
-    def __init__(self, name, team_id=None):
+    def __init__(self, name, pwd, registration_id, picture, team_id=None):
         self.name = name
+        self.pwd = pwd
+        self.registration_id = registration_id
+        self.picture = picture
         self.team_id = team_id
     def __str__(self):
-        return "%s%s TEAM" % (self.name)
+        return self.name
 
 def add_worker(worker):
     # Insert hometown if necessary
@@ -60,14 +51,14 @@ def add_worker(worker):
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
-            INSERT INTO Workers (name, age, work_age, place_id, education)
+            INSERT INTO Workers (name, card_id, pwd, place_id, picture)
             VALUES (?, ?, ?, ?, ?)
-            """, (worker.name, worker.age, worker.work_age, place_id, worker.education))
+            """, (worker.name, worker.card_id, worker.pwd, place_id, worker.picture))
         worker_id = conn.lastrowid()
         conn.commit()
 
     # Insert speciality if necessary
-    speciality_id = insert_speciality_if_not_exist(worker.specialities[0])
+    speciality_id = insert_speciality_if_not_exist(worker.speciality.name)
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
@@ -78,20 +69,63 @@ def add_worker(worker):
 
     return worker_id
 
-def add_worker_to_team(worker_id, team_id, starts, ends=None):
-    # validate worker
-    if not worker_id or not worker_exists(worker_id):
-        raise RuntimeError("worker %s not exists" % str(worker_id))
-    # validate team
-    if not team_id or not team_exists(team_id):
-        raise RuntimeError("team %s not exists" % str(team_id))
+def add_team(team):
+    # insert team
+    with DatabaseConnection(read_only=False) as conn:
+        conn.begin()
+        conn.execute("""
+            INSERT INTO Teams (name, pwd, registration_id, picture)
+            VALUES (?, ?, ?, ?)
+            """, (team.name, team.pwd, team.registration_id, team.picture))
+        team_id = conn.lastrowid()
+        conn.commit()
+
+        return team_id
+
+def get_worker_certified(worker_id):
+    with DatabaseConnection() as conn:
+        certified = conn.execute("""
+            SELECT certified FROM Workers WHERE worker_id = ?
+            """, (worker_id, ))
+        return str(certified).lower() == "true"
+
+def api_time_to_db(time):
+    # TODO: db compatible
+    return time
+
+def db_time_to_api(time):
+    timestr = str(time)
+    # TODO: strip to 2000-01-01
+    return timestr
+
+def get_worker_experience(worker_id):
+    worker_experiences = []
+    with DatabaseConnection() as conn:
+        for (team_name, project_name, start, end) in conn.execute("""
+            SELECT Teams.name, Projects.name, starts, ends
+            FROM WorkerTeamProject
+            JOIN Teams USING (team_id)
+            JOIN Projects USING (project_id)
+            WHERE worker_id = ?
+            """, (worker_id, )):
+            worker_experiences.append({'team': team_name, 'project': project_name,
+                'start': process_time(start), 'end': process_time(end)})
+    return worker_experiences
+
+
+def add_worker_team_project(worker_id, team_name, project_name, starts, ends=None):
+    # validate worker, team, project
+    worker_id = worker_exists(worker_id)
+    team_id = team_exists(team_name)
+    project_id = project_exists(project_name)
+
     # Insert
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
-            INSERT INTO WorkerPartOfTeam (worker_id, team_id, starts, ends)
-            VALUES (?, ?, ?, ?)
-            """, (worker_id, team_id, starts, ends))
+            INSERT INTO WorkerTeamProject (worker_id, team_id, project_id, starts, ends)
+            VALUES (?, ?, ?, ?, ?)
+            """, (worker_id, team_id, project_id, starts, ends))
         conn.commit()
 
 def get_teams(place=None, prefix=None):
@@ -109,7 +143,7 @@ def get_workers():
             """)
 
 
-def get_matched_workers(worker_id, limit=6):
+def get_matched_workers(worker_id, limit=10):
     with DatabaseConnection() as conn:
         return conn.execute("""
             SELECT worker_id2, name, score, reason
@@ -120,17 +154,27 @@ def get_matched_workers(worker_id, limit=6):
             LIMIT ?
             """, (worker_id, limit, ))
 
-def get_matched_teams(worker_id, limit=4):
+def get_team_matched_workers(team_id, limit=10):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT team_id, name, score, reason
+            SELECT Workers.worker_id, Workers.name, picture, score, reason
             FROM MatchedWorkerTeam
-            JOIN Teams USING (team_id)
-            WHERE worker_id = ?
+            JOIN Workers USING (worker_id)
+            WHERE team_id = ?
             ORDER BY score DESC
             LIMIT ?
-            """, (worker_id, limit))
+            """, (team_id, limit))
 
+def get_team_projects(team_id, limit=5):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT project_id, name, picture
+            FROM Projects
+            WHERE project_id IN (SELECT DISTINCT project_id
+                                 FROM WorkerTeamProject
+                                 WHERE team_id = ?
+                                 LIMIT ?)
+            """, (team_id, limit))
 
 def longest_common_prefix(seq1, seq2):
     start = 0
@@ -285,22 +329,24 @@ def _form_common_date(start, end):
         return "%s - Now" % start
     return "%s - %s" % (start, end)
 
-def get_workers_common_team(worker_id1, worker_id2):
+def get_workers_same_experience(worker_id1, worker_id2):
     # TODO: get multiple
-    same_team = ""
+    same_team = "曾合作"
     with DatabaseConnection() as conn:
         result = conn.execute("""
-            SELECT t.name,
+            SELECT t.name, p.name
             CASE WHEN a.starts < b.starts THEN b.starts ELSE a.starts END,
             CASE WHEN (a.ends IS NULL AND b.ends IS NULL) THEN NULL
                  WHEN (a.ends IS NULL) THEN b.ends
                  WHEN (b.ends IS NULL) THEN a.ends
                  WHEN (a.ends < b.ends) THEN a.ends
                  ELSE b.ends END
-            FROM WorkerPartOfTeam a
-            JOIN WorkerPartOfTeam b ON (a.team_id = b.team_id)
-            JOIN Teams t ON (a.team_id = t.team_id)
-            WHERE a.worker_id = ? AND b.worker_id = ?
+            FROM WorkerTeamProject a
+            JOIN WorkerTeamProject b ON (a.team_id = b.team_id)
+            JOIN Teams t ON (t.team_id = a.team_id)
+            JOIN Projects p ON (p.project_id = a.project_id)
+            WHERE b.project_id = p.project_id
+            AND a.worker_id = ? AND b.worker_id = ?
             AND ((a.ends is NULL AND b.ends is NULL)
                 OR (a.ends is NULL AND a.starts < b.ends)
                 OR (b.ends is NULL AND b.starts < a.ends)
@@ -309,10 +355,8 @@ def get_workers_common_team(worker_id1, worker_id2):
             LIMIT 1
                 """, (worker_id1, worker_id2))
         if len(result) == 0:
-            return same_team
-        (team_name, start, end) = result[0]
-        same_team = "%s %s" % (team_name, _form_common_date(start, end))
-        return [same_team]
+            return None
+        return same_team
 
 def get_team_needs(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -382,6 +426,8 @@ def get_top_matched_workers(worker_id, matched_workers, limit=3):
             (worker_id, ) + tuple(matched_workers) + (limit, ))
 
 
+####### UTIL FUNCS ###############################################
+
 def insert_place_if_not_exist(place):
     with DatabaseConnection() as conn:
         place_id = conn.execute("""
@@ -416,13 +462,27 @@ def insert_speciality_if_not_exist(name):
 
 def worker_exists(worker_id):
     with DatabaseConnection() as conn:
-        return not conn.execute("""
+        if conn.execute("""
             SELECT * FROM Workers WHERE worker_id = ?
-            """, (worker_id, )) == []
+            """, (worker_id, )) == []:
+            raise ResouceNotFound("Worker %s not found" % worker_id)
+    return worker_id
 
-def team_exists(team_id):
+def team_exists(team_name):
     with DatabaseConnection() as conn:
-        return not conn.execute("""
-            SELECT * FROM Teams WHERE team_id = ?
-            """, (team_id, )) == []
+        team_id = conn.execute("""
+            SELECT team_id FROM Teams WHERE name = ?
+            """, (team_name, ))
+        if len(team_id) == 0:
+            raise ResouceNotFound("Team %s not found" % team_name)
+        return team_id[0]
+
+def project_exists(project_name):
+    with DatabaseConnection() as conn:
+        project_id = conn.execute("""
+            SELECT project_id FROM Projects WHERE name = ?
+            """, (project_name,))
+        if len(project_id) == 0:
+            raise ResouceNotFound("Project %s not found" % project_name)
+        return project_id[0]
 

@@ -80,12 +80,9 @@ CREATE TABLE WorkerKnowsWorker (
 CREATE TABLE WorkerPartOfTeam (
     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
     team_id INTEGER NOT NULL REFERENCES Team(team_id),
-    starts DATETIME NOT NULL,
-    ends DATETIME,
     position INTEGER NOT NULL DEFAULT 1,
     --
-    PRIMARY KEY (worker_id, team_id, starts),
-    CHECK (ends is NULL or ends > starts)
+    PRIMARY KEY (worker_id, team_id)
 );
 
 CREATE TABLE Speciality (
@@ -105,28 +102,6 @@ CREATE TABLE TeamNeedsSpeciality (
     CHECK (count > 0)
 );
 
--- certificate must be tied to a speciality
--- 六级木匠 （相当于中级知识分子）
-CREATE TABLE Certificate (
-    cert_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
-    level INTEGER NOT NULL DEFAULT 1,
-    --
-    UNIQUE (name),
-    UNIQUE (speciality_id, level),
-    CHECK (length(name) > 0),
-    CHECK (level > 0)
-);
-
--- CREATE TABLE WorkerHasCert (
---     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
---     cert_id INTEGER NOT NULL REFERENCES Certificate(cert_id),
---     achieved DATETIME NOT NULL,
---     --
---     PRIMARY KEY (worker_id, cert_id)
--- );
-
 CREATE TABLE WorkerHasSpeciality (
     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
     speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
@@ -134,11 +109,9 @@ CREATE TABLE WorkerHasSpeciality (
     PRIMARY KEY (worker_id, speciality_id)
 );
 
--- 沈阳奥体，北京奥体
 CREATE TABLE Projects (
     project_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    place_id INTEGER NOT NULL REFERENCES Places(place_id),
     picture TEXT,
     --
     UNIQUE (name, place_id),
@@ -147,13 +120,14 @@ CREATE TABLE Projects (
 
 -- position 1, 2, 3 means worker, mid-leader, big-leader for now
 -- some big-leader may not have a clear speciality during this project
-CREATE TABLE TeamParticipateProject (
+CREATE TABLE WorkerTeamProject (
+    worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
     team_id INTEGER NOT NULL REFERENCES Team(team_id),
     project_id INTEGER NOT NULL REFERENCES Projects(project_id),
     starts DATETIME NOT NULL,
     ends DATETIME,
     --
-    PRIMARY KEY (team_id, project_id, starts),
+    PRIMARY KEY (worker_id, team_id, project_id),
     CHECK (ends is NULL or ends > starts)
 );
 

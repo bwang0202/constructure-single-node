@@ -8,9 +8,6 @@ import config
 from config import MatchWorkersConstants, MatchTeamWorkerConstants
 from util import *
 
-age_keyword = "Similar age"
-work_age_keyword = "Similar years of experience"
-
 class MatchEntry:
     def __init__(self, score, weight, keyword=None, is_speciality=False):
         self.score = score
@@ -20,22 +17,11 @@ class MatchEntry:
     def __str__(self):
         return self.keyword if self.keyword else ""
 
-def _match_age(worker1, worker2):
-    return MatchEntry(100 - abs(worker1.age - worker2.age),
-        MatchWorkersConstants.age,
-        age_keyword)
-
-def _match_work_age(worker1, worker2):
-    return MatchEntry(100 - abs(worker1.work_age - worker2.work_age),
-        MatchWorkersConstants.work_age,
-        work_age_keyword)
 
 def _match_specialites(worker1, worker2):
     weight = MatchWorkersConstants.speciality
-    if worker1.specialities and worker2.specialities \
-        and len(worker1.specialities) > 0 and len(worker2.specialities) > 0 \
-        and worker1.specialities[0].name == worker2.specialities[0].name:
-        return MatchEntry(100, weight, worker1.specialities[0].name, is_speciality=True)
+    if worker1.speciality.name == worker2.speciality.name:
+        return MatchEntry(100, weight, worker1.speciality.name, is_speciality=True)
     return MatchEntry(0, weight, is_speciality=True)
 
 def _match_hometown(worker1, worker2):
@@ -51,29 +37,21 @@ def _match_hometown(worker1, worker2):
         result.append(hometown1[i])
     return MatchEntry(0 if not result else 100,
         MatchWorkersConstants.hometown,
-        "Hometown %s" % ",".join(result))
+        "%s" % ",".join(result))
 
-def _match_same_teams(same_teams):
-    return MatchEntry(0 if not same_teams else 100,
+def _match_same_experience(same_experiences):
+    return MatchEntry(0 if not same_experiences else 100,
         MatchWorkersConstants.team,
-        ",".join(same_teams))
-
-def _match_same_projects(same_projects):
-    return MatchEntry(0 if not same_projects else 100,
-        MatchWorkersConstants.project,
-        ",".join(same_projects))
+        ",".join(same_experiences))
 
 def match_workers(worker_id1, worker_id2):
     worker1 = get_worker_info(worker_id1)
     worker2 = get_worker_info(worker_id2)
 
-    same_teams = get_workers_common_team(worker_id1, worker_id2)
+    same_experiences = get_workers_same_experience(worker_id1, worker_id2)
 
-    return [_match_age(worker1, worker2),
-            _match_work_age(worker1, worker2),
-            _match_hometown(worker1, worker2),
-            _match_specialites(worker1, worker2),
-            _match_same_teams(same_teams)]    
+    return [_match_hometown(worker1, worker2),
+            _match_same_experience(same_experiences)]
 
 def match_worker_team(worker_id, team_id, display=4):
     # display three results together:
@@ -135,3 +113,6 @@ def compute_match_for_worker(worker_id):
         insert_match_team_result(worker_id, x[0], score,
                                  ";           ".join([z.keyword for z in match_entries]))
 
+
+def compute_match_for_team(team_id):
+    pass
