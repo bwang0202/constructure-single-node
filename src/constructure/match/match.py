@@ -87,6 +87,12 @@ def start_match_calculation(worker_id):
     # Background TODO
     compute_match_for_worker(worker_id)
 
+def team_start_match_calculation(team_id):
+    if not team_id:
+        raise RuntimeException("team_id %s" % str(team_id))
+    # Background TODO
+    compute_match_for_team(team_id)
+
 
 def compute_match_for_worker(worker_id):
     all_workers = get_all_workers()
@@ -111,8 +117,16 @@ def compute_match_for_worker(worker_id):
         for y in match_entries:
             score += y.score * y.weight
         insert_match_team_result(worker_id, x[0], score,
-                                 ";           ".join([z.keyword for z in match_entries]))
+                                 ";".join([z.keyword for z in match_entries]))
 
 
 def compute_match_for_team(team_id):
-    pass
+    all_workers = get_all_workers()
+    for x in all_workers:
+        match_entries = match_worker_team(x[0], team_id)
+        score = 0
+        for y in match_entries:
+            score += y.score * y.weight
+        insert_match_team_result(x[0], team_id, score,
+                                 ";".join([z.keyword for z in match_entrie]))
+
