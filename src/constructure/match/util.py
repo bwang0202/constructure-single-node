@@ -10,9 +10,6 @@ import config
 from model import *
 from match import *
 
-class ResouceNotFound(Exception):
-    pass
-
 class Speciality:
     def __init__(self, name, speciality_id=None):
         self.name = name
@@ -44,9 +41,18 @@ class Team:
         return self.name
 
 def add_worker(worker):
+    # Check card_id not exists
+    with DatabaseConnection() as conn:
+        card_id = conn.execute("""
+            SELECT 1 FROM Workers WHERE card_id = ?
+            """, (worker.card_id, ))
+        if len(card_id) > 0:
+            raise DuplicateResource()
+
     # Insert hometown if necessary
     place_id = insert_place_if_not_exist(worker.hometown)
-
+    # Insert speciality if necessary
+    speciality_id = insert_speciality_if_not_exist(worker.speciality.name)
     # Insert worker
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
@@ -55,21 +61,43 @@ def add_worker(worker):
             VALUES (?, ?, ?, ?, ?)
             """, (worker.name, worker.card_id, worker.pwd, place_id, worker.picture))
         worker_id = conn.lastrowid()
-        conn.commit()
-
-    # Insert speciality if necessary
-    speciality_id = insert_speciality_if_not_exist(worker.speciality.name)
-    with DatabaseConnection(read_only=False) as conn:
-        conn.begin()
         conn.execute("""
             INSERT INTO WorkerHasSpeciality (worker_id, speciality_id)
             VALUES (?, ?)
             """, (worker_id, speciality_id))
         conn.commit()
+        return worker_id
 
-    return worker_id
+def verify_worker(card_id, pwd):
+    with DatabaseConnection() as conn:
+        db_pwd = conn.execute("""
+            SELECT worker_id, pwd FROM Workers WHERE card_id = ?
+            """, (card_id, ))
+        if len(pwd) == 0:
+            raise ResouceNotFound()
+        if pwd != db_pwd[0][1]:
+            raise InvalidCredential()
+        return db_pwd[0][0]
+
+def verify_team(reg_id, pwd):
+    with DatabaseConnection() as conn:
+        db_pwd = conn.execute("""
+            SELECT team_id, pwd FROM Workers WHERE registration_id = ?
+            """, (reg_id, ))
+        if len(pwd) == 0:
+            raise ResouceNotFound()
+        if pwd != db_pwd[0][1]:
+            raise InvalidCredential()
+        return db_pwd[0][0]
 
 def add_team(team):
+    # Check registration_id not exists
+    with DatabaseConnection() as conn:
+        registration_id = conn.execute("""
+            SELECT 1 FROM Teams WHERE registration_id = ?
+            """, (team.registration_id, ))
+        if len(registration_id) > 0:
+            raise DuplicateResource()
     # insert team
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
@@ -79,7 +107,6 @@ def add_team(team):
             """, (team.name, team.pwd, team.registration_id, team.picture))
         team_id = conn.lastrowid()
         conn.commit()
-
         return team_id
 
 def get_worker_certified(worker_id):
@@ -141,7 +168,12 @@ def get_workers():
             SELECT worker_id, name, age, education, (SELECT name FROM Places WHERE place_id = Workers.place_id)
             FROM Workers
             """)
-
+def get_specialties():
+    with DatabaseConnection() as conn:
+        result = conn.execute("""
+            SELECT name FROM Specialties
+            """)
+        return [x[0] for x in result]
 
 def get_matched_workers(worker_id, limit=10):
     with DatabaseConnection() as conn:

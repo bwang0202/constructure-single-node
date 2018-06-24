@@ -19,7 +19,7 @@ CREATE TABLE Workers (
     picture TEXT,
     certified INTEGER NOT NULL DEFAULT 0,
     --
-    UNIQUE (name),
+    UNIQUE (card_id),
     CHECK (length(card_id) > 0),
     CHECK (length(pwd) > 0)
     -- CHECK (education = '无' or education = '小学'
@@ -118,8 +118,6 @@ CREATE TABLE Projects (
     CHECK (length(name) > 0)
 );
 
--- position 1, 2, 3 means worker, mid-leader, big-leader for now
--- some big-leader may not have a clear speciality during this project
 CREATE TABLE WorkerTeamProject (
     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
     team_id INTEGER NOT NULL REFERENCES Team(team_id),

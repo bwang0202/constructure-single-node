@@ -8,6 +8,15 @@ import config
 from config import MatchWorkersConstants, MatchTeamWorkerConstants
 from util import *
 
+class ResouceNotFound(Exception):
+    pass
+
+class DuplicateResource(Exception):
+    pass
+
+class InvalidCredential(Exception):
+    pass
+
 class MatchEntry:
     def __init__(self, score, weight, keyword=None, is_speciality=False):
         self.score = score
@@ -57,12 +66,15 @@ def match_worker_team(worker_id, team_id, display=4):
     # display three results together:
 
     # job match speciality
-    job = get_team_needs(worker_id, team_id)
+    # job = get_team_needs(worker_id, team_id)
+    # used to work together
+    ex_members = get_team_ex_members(worker_id, team_id)TODODO
 
     # homies
     homies = get_team_homies(worker_id, team_id)
     # ex teammates
     ex_teammates = get_team_ex_teammates(worker_id, team_id)
+
 
     teammates_candidates = []
     for x in homies:
