@@ -414,13 +414,22 @@ def get_team_needs(worker_id, team_id):
 def get_team_homies(worker_id, team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT Workers.worker_id
-            FROM WorkerPartOfTeam
+            SELECT WorkerTeamProject.worker_id
+            FROM WorkerTeamProject
             JOIN Teams USING (team_id)
             JOIN Workers USING (worker_id)
-            WHERE team_id = ?
+            WHERE Teams.team_id = ?
             AND ends is NULL
-            AND place_id = (SELECT place_id FROM Workers WHERE Workers.worker_id = ?)
+            AND Workers.place_id = (SELECT place_id FROM Workers WHERE Workers.worker_id = ?)
+            """, (team_id, worker_id))
+
+def get_team_ex_members(worker_id, team_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT starts, ends
+            FROM WorkerTeamProject
+            WHERE team_id = ? AND worker_id = ?
+            AND ends IS NOT NULL
             """, (team_id, worker_id))
 
 def get_team_ex_teammates(worker_id, team_id):

@@ -67,30 +67,34 @@ def match_worker_team(worker_id, team_id, display=4):
 
     # job match speciality
     # job = get_team_needs(worker_id, team_id)
+
     # used to work together
-    ex_members = get_team_ex_members(worker_id, team_id)TODODO
+    ex_members = get_team_ex_members(worker_id, team_id)
 
     # homies
     homies = get_team_homies(worker_id, team_id)
     # ex teammates
-    ex_teammates = get_team_ex_teammates(worker_id, team_id)
-
+    # ex_teammates = get_team_ex_teammates(worker_id, team_id)
 
     teammates_candidates = []
     for x in homies:
         teammates_candidates.append(x[0])
-    for x in ex_teammates:
-        teammates_candidates.append(x[0])
+    #for x in ex_teammates:
+    #    teammates_candidates.append(x[0])
 
     matched_workers = get_top_matched_workers(worker_id, teammates_candidates,
         limit=display)
 
-    return [MatchEntry(100 if job else 0,
-                       MatchTeamWorkerConstants.job,
-                       "Needs %s" % job if job else ""),
+    # return [MatchEntry(100 if job else 0,
+    #                    MatchTeamWorkerConstants.job,
+    #                    "Needs %s" % job if job else ""),
+    return [MatchEntry(100 if ex_members else 0,
+                       MatchTeamWorkerConstants.ex_members,
+                       ".".join(["%s-%s" % (x[0], x[1]) for x in ex_members]) if ex_members else ""
+                       )
             MatchEntry(100 if matched_workers else 0,
                        MatchTeamWorkerConstants.teammates,
-                       ".    ".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")
+                       ".".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")
             ]
 
 def start_match_calculation(worker_id):

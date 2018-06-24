@@ -74,17 +74,6 @@ CREATE TABLE WorkerKnowsWorker (
     CHECK (worker_id1 <> worker_id2)
 );
 
--- a worker could be part of team for multiple times as multiple
--- different positions
--- position 1, 2, 3 means worker, mid-leader, big-leader for now
-CREATE TABLE WorkerPartOfTeam (
-    worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
-    team_id INTEGER NOT NULL REFERENCES Team(team_id),
-    position INTEGER NOT NULL DEFAULT 1,
-    --
-    PRIMARY KEY (worker_id, team_id)
-);
-
 CREATE TABLE Speciality (
     speciality_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
