@@ -165,13 +165,13 @@ def get_teams(place=None, prefix=None):
 def get_workers():
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT worker_id, name, age, education, (SELECT name FROM Places WHERE place_id = Workers.place_id)
+            SELECT worker_id, name, card_id, (SELECT name FROM Places WHERE place_id = Workers.place_id)
             FROM Workers
             """)
 def get_specialties():
     with DatabaseConnection() as conn:
         result = conn.execute("""
-            SELECT name FROM Specialties
+            SELECT name FROM Speciality
             """)
         return [x[0] for x in result]
 

@@ -91,7 +91,7 @@ def match_worker_team(worker_id, team_id, display=4):
     return [MatchEntry(100 if ex_members else 0,
                        MatchTeamWorkerConstants.ex_members,
                        ".".join(["%s-%s" % (x[0], x[1]) for x in ex_members]) if ex_members else ""
-                       )
+                       ),
             MatchEntry(100 if matched_workers else 0,
                        MatchTeamWorkerConstants.teammates,
                        ".".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")

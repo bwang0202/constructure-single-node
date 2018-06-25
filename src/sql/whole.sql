@@ -103,7 +103,6 @@ CREATE TABLE Projects (
     name TEXT NOT NULL,
     picture TEXT,
     --
-    UNIQUE (name, place_id),
     CHECK (length(name) > 0)
 );
 
