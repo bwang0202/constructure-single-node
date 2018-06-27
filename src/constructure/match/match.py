@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Constructure 1.0
 # Bojun Wang, May 2018
 #TODO: 1. make this OO 2. match reason
@@ -18,20 +20,19 @@ class InvalidCredential(Exception):
     pass
 
 class MatchEntry:
-    def __init__(self, score, weight, keyword=None, is_speciality=False):
+    def __init__(self, score, weight, keyword=None, is_specialty=False):
         self.score = score
         self.weight = weight
         self.keyword = keyword
-        self.is_speciality = is_speciality # useful for worker/team composition
+        self.is_specialty = is_specialty # useful for worker/team composition
     def __str__(self):
         return self.keyword if self.keyword else ""
 
-
 def _match_specialites(worker1, worker2):
-    weight = MatchWorkersConstants.speciality
-    if worker1.speciality.name == worker2.speciality.name:
-        return MatchEntry(100, weight, worker1.speciality.name, is_speciality=True)
-    return MatchEntry(0, weight, is_speciality=True)
+    weight = MatchWorkersConstants.specialty
+    if worker1.specialty.name == worker2.specialty.name:
+        return MatchEntry(100, weight, worker1.specialty.name, is_specialty=True)
+    return MatchEntry(0, weight, is_specialty=True)
 
 def _match_hometown(worker1, worker2):
     hometown1 = worker1.hometown.split(",")
@@ -62,53 +63,11 @@ def match_workers(worker_id1, worker_id2):
     return [_match_hometown(worker1, worker2),
             _match_same_experience(same_experiences)]
 
-def match_worker_team(worker_id, team_id, display=4):
-    # display three results together:
-
-    # job match speciality
-    # job = get_team_needs(worker_id, team_id)
-
-    # used to work together
-    ex_members = get_team_ex_members(worker_id, team_id)
-
-    # homies
-    homies = get_team_homies(worker_id, team_id)
-    # ex teammates
-    # ex_teammates = get_team_ex_teammates(worker_id, team_id)
-
-    teammates_candidates = []
-    for x in homies:
-        teammates_candidates.append(x[0])
-    #for x in ex_teammates:
-    #    teammates_candidates.append(x[0])
-
-    matched_workers = get_top_matched_workers(worker_id, teammates_candidates,
-        limit=display)
-
-    # return [MatchEntry(100 if job else 0,
-    #                    MatchTeamWorkerConstants.job,
-    #                    "Needs %s" % job if job else ""),
-    return [MatchEntry(100 if ex_members else 0,
-                       MatchTeamWorkerConstants.ex_members,
-                       ".".join(["%s-%s" % (x[0], x[1]) for x in ex_members]) if ex_members else ""
-                       ),
-            MatchEntry(100 if matched_workers else 0,
-                       MatchTeamWorkerConstants.teammates,
-                       ".".join(["%s %s" % (x[0], x[1]) for x in matched_workers]) if matched_workers else "")
-            ]
-
 def start_match_calculation(worker_id):
     if not worker_id:
         raise RuntimeException("worker_id %s" % str(worker_id))
     # Background TODO
     compute_match_for_worker(worker_id)
-
-def team_start_match_calculation(team_id):
-    if not team_id:
-        raise RuntimeException("team_id %s" % str(team_id))
-    # Background TODO
-    compute_match_for_team(team_id)
-
 
 def compute_match_for_worker(worker_id):
     all_workers = get_all_workers()
@@ -117,32 +76,31 @@ def compute_match_for_worker(worker_id):
             continue
         # FIXME: check existing match result first
         match_entries = match_workers(x[0], worker_id)
-        # sort according to match result
-        match_entries = sorted(match_entries, key=lambda me:(-me.score * me.weight))
-
         score = 0
         for y in match_entries:
             score += y.score * y.weight
         insert_match_result(x[0], worker_id, score,
-                            "; ".join([z.keyword for z in match_entries[:3]]))
-    all_teams = get_team_ids()
-    for x in all_teams:
-        match_entries = match_worker_team(worker_id, x[0])
-        # 
-        score = 0
-        for y in match_entries:
-            score += y.score * y.weight
-        insert_match_team_result(worker_id, x[0], score,
-                                 ";".join([z.keyword for z in match_entries]))
+                            "; ".join([z.keyword for z in match_entries]))
 
+def compute_match_for_worker_team(worker_id, team_id):
+    hommies = get_team_homies(worker_id, team_id)
+    teammates = get_team_ex_teammates(worker_id, team_id)
+    cooperations = get_cooperation(worker_id, team_id)
 
-def compute_match_for_team(team_id):
-    all_workers = get_all_workers()
-    for x in all_workers:
-        match_entries = match_worker_team(x[0], team_id)
-        score = 0
-        for y in match_entries:
-            score += y.score * y.weight
-        insert_match_team_result(x[0], team_id, score,
-                                 ";".join([z.keyword for z in match_entrie]))
+    return [MatchEntry(100 if hommies > 10 else hommies * 10,
+                MatchTeamsConstants.hometown, "老乡"),
+            MatchEntry(100 if teammates > 10 else teammates * 10,
+                MatchTeamsConstants.teammates, "旧搭档"),
+            MatchEntry(100 if len(cooperations) else 0,
+                MatchTeamsConstants.cooperation, "曾合作")]
 
+def match_team_specialty_workers(team_id, specialty):
+    # get unhired workers:
+    specialty_candidate_workers = get_specialty_candidate_workers(team_id, specialty)
+
+    # compute cci for each
+    worker_ccis = {}
+    for (worker_id,) in specialty_candidate_workers:
+        worker_ccis[worker_id] = compute_match_for_worker_team(worker_id, team_id)
+
+    return worker_ccis

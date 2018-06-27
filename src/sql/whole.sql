@@ -61,29 +61,28 @@ CREATE TABLE TeamWorksWithLaborTeams (
     PRIMARY KEY (team_id, laborteam_id)
 );
 
-
-CREATE TABLE Speciality (
-    speciality_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE Specialty (
+    specialty_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     --
     UNIQUE (name),
     CHECK (length(name) > 0)
 );
 
-CREATE TABLE TeamNeedsSpeciality (
-    speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
+CREATE TABLE TeamNeedsSpecialty (
+    specialty_id INTEGER NOT NULL REFERENCES Specialty(specialty_id),
     team_id INTEGER NOT NULL REFERENCES Team(team_id),
     count INTEGER NOT NULL DEFAULT 1,
     --
-    UNIQUE (team_id, speciality_id),
+    UNIQUE (team_id, specialty_id),
     CHECK (count > 0)
 );
 
-CREATE TABLE WorkerHasSpeciality (
+CREATE TABLE WorkerHasSpecialty (
     worker_id INTEGER NOT NULL REFERENCES Workers(worker_id),
-    speciality_id INTEGER NOT NULL REFERENCES Speciality(speciality_id),
+    specialty_id INTEGER NOT NULL REFERENCES Specialty(specialty_id),
     --
-    PRIMARY KEY (worker_id, speciality_id)
+    PRIMARY KEY (worker_id, specialty_id)
 );
 
 CREATE TABLE Projects (

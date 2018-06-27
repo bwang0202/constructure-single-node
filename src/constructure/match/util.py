@@ -10,24 +10,24 @@ import config
 from model import *
 from match import *
 
-class Speciality:
-    def __init__(self, name, speciality_id=None):
+class Specialty:
+    def __init__(self, name, specialty_id=None):
         self.name = name
-        self.speciality_id = speciality_id
+        self.specialty_id = specialty_id
     def __str__(self):
         return self.name
 
 class Worker:
-    def __init__(self, name, pwd, card_id, picture, hometown, speciality, worker_id=None):
+    def __init__(self, name, pwd, card_id, picture, hometown, specialty, worker_id=None):
         self.name = name
         self.picture = picture
         self.pwd = pwd
         self.card_id = card_id
         self.hometown = hometown
-        self.speciality = speciality
+        self.specialty = specialty
         self.worker_id = worker_id
     def __str__(self):
-        strs = [self.name, self.speciality, "ID %s" % self.card_id[-4:]]
+        strs = [self.name, self.specialty, "ID %s" % self.card_id[-4:]]
         return ", ".join(strs)
 
 class Team:
@@ -51,8 +51,8 @@ def add_worker(worker):
 
     # Insert hometown if necessary
     place_id = insert_place_if_not_exist(worker.hometown)
-    # Insert speciality if necessary
-    speciality_id = insert_speciality_if_not_exist(worker.speciality.name)
+    # Insert specialty if necessary
+    specialty_id = insert_specialty_if_not_exist(worker.specialty.name)
     # Insert worker
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
@@ -62,9 +62,9 @@ def add_worker(worker):
             """, (worker.name, worker.card_id, worker.pwd, place_id, worker.picture))
         worker_id = conn.lastrowid()
         conn.execute("""
-            INSERT INTO WorkerHasSpeciality (worker_id, speciality_id)
+            INSERT INTO WorkerHasSpecialty (worker_id, specialty_id)
             VALUES (?, ?)
-            """, (worker_id, speciality_id))
+            """, (worker_id, specialty_id))
         conn.commit()
         return worker_id
 
@@ -171,7 +171,7 @@ def get_workers():
 def get_specialties():
     with DatabaseConnection() as conn:
         result = conn.execute("""
-            SELECT name FROM Speciality
+            SELECT name FROM Specialty
             """)
         return [x[0] for x in result]
 
@@ -332,16 +332,16 @@ def insert_match_result(worker_id1, worker_id2, score, reason):
             """, (worker_id2, worker_id1, score, reason))
         conn.commit()
 
-def get_worker_speciality(worker_id):
+def get_worker_specialty(worker_id):
     with DatabaseConnection() as conn:
-        (speciality_id, name) = conn.execute("""
-            SELECT speciality_id, name
-            FROM WorkerHasSpeciality
-            JOIN Speciality USING (speciality_id)
+        (specialty_id, name) = conn.execute("""
+            SELECT specialty_id, name
+            FROM WorkerHasSpecialty
+            JOIN Specialty USING (specialty_id)
             WHERE worker_id = ?
             LIMIT 1
             """, (worker_id, ))[0]
-        return Speciality(name, speciality_id=speciality_id)
+        return Specialty(name, specialty_id=specialty_id)
 
 def get_worker_cert(worker_id):
     with DatabaseConnection() as conn:
@@ -363,7 +363,7 @@ def get_worker_info(worker_id):
             LIMIT 1
             """, (worker_id, ))[0]
     return Worker(name, age, work_age, education, hometown,
-            worker_id).add_speciality(get_worker_speciality(worker_id))
+            worker_id).add_specialty(get_worker_specialty(worker_id))
 
 def _form_common_date(start, end):
     if not end:
@@ -409,7 +409,7 @@ def get_team_homies(worker_id, team_id):
             WHERE Teams.team_id = ?
             AND ends is NULL
             AND Workers.place_id = (SELECT place_id FROM Workers WHERE Workers.worker_id = ?)
-            """, (team_id, worker_id))
+            """, (team_id, worker_id))[0]
 
 def get_team_ex_members(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -436,7 +436,7 @@ def get_team_ex_teammates(worker_id, team_id):
                 AND ((a.ends > b.starts AND a.starts < b.ends)
                 OR (b.ends > a.starts AND b.starts < a.ends))
             )
-            """, (team_id, worker_id))
+            """, (team_id, worker_id))[0]
 
 def get_cooperation(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -446,7 +446,22 @@ def get_cooperation(worker_id, team_id):
             WHERE worker_id = ?
             AND team_id = ?
             AND ends IS NOT NULL
-            """, (worker_id, team_id))
+            """, (worker_id, team_id))[0]
+
+def get_specialty_candidate_workers(team_id, specialty):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT DISTINCT worker_id
+            FROM Workers
+            JOIN WorkerHasSpecialty USING (worker_id)
+            JOIN Specialty USING (specialty_id)
+            WHERE Specialty.name = ?
+            AND worker_id NOT IN (SELECT worker_id
+                                  FROM WorkerTeamProject
+                                  WHERE ends IS NULL
+                                  AND team_id = ?
+                                  )
+            """, (specialty, team_id))
 
 ####### UTIL FUNCS ###############################################
 
@@ -466,21 +481,21 @@ def insert_place_if_not_exist(place):
         conn.commit()
         return place_id
 
-def insert_speciality_if_not_exist(name):
+def insert_specialty_if_not_exist(name):
     with DatabaseConnection() as conn:
-        speciality_id = conn.execute("""
-            SELECT speciality_id FROM Speciality WHERE name = ?
+        specialty_id = conn.execute("""
+            SELECT specialty_id FROM Specialty WHERE name = ?
             """, (name, ))
-        if len(speciality_id) > 0:
-            return speciality_id[0][0]
+        if len(specialty_id) > 0:
+            return specialty_id[0][0]
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
-            INSERT INTO Speciality (name) VALUES (?)
+            INSERT INTO Specialty (name) VALUES (?)
             """, (name, ))
-        speciality_id = conn.lastrowid()
+        specialty_id = conn.lastrowid()
         conn.commit()
-        return speciality_id
+        return specialty_id
 
 def worker_exists(worker_id):
     with DatabaseConnection() as conn:

@@ -41,7 +41,6 @@ def worker(request):
             body = json.loads(request.body)
             worker = build_worker(body)
             worker_id = add_worker(worker)
-            start_match_calculation(worker_id)
             return HttpResponse(json.dumps({'msg': 'success', 'worker_id': worker_id}))
         except DuplicateResource as e:
             resp = HttpResponse(json.dumps({'msg': 'Worker with same card ID already exists'}))
@@ -140,6 +139,7 @@ def worker_exp(request):
             body = json.loads(request.body)
             add_worker_team_project(body['worker_id'], body['team'], body['project'],
                 body['starts'], body.get('ends', None))
+            put_next_worker_id(body['worker_id'])
         except ResouceNotFound as e:
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 404
@@ -168,15 +168,6 @@ def specialty(request):
         return HttpResponse(json.dumps({'specialty': get_specialties()}))
 
 ################
-
-def worker_team(request):
-    if request.method == "POST":
-        body = json.loads(request.body)
-        add_worker_to_team(body['worker_id'], body['team_id'], body['starts'],
-            body['ends'])
-        start_match_calculation(body['worker_id'])
-        return HttpResponse(json.dumps({'msg': 'worker added to team.'}))
-    return echo(request)
 
 def worker_match(request):
     if request.method == "GET":
