@@ -61,18 +61,6 @@ CREATE TABLE TeamWorksWithLaborTeams (
     PRIMARY KEY (team_id, laborteam_id)
 );
 
--- Worker may just already know someone outside the scope of this db
-CREATE TABLE WorkerKnowsWorker (
-    worker_id1 INTEGER NOT NULL REFERENCES Workers(worker_id),
-    worker_id2 INTEGER NOT NULL REFERENCES Workers(worker_id),
-    starts DATETIME NOT NULL,
-    ends DATETIME,
-    notes TEXT,
-    --
-    PRIMARY KEY (worker_id1, worker_id2),
-    CHECK (starts < ends),
-    CHECK (worker_id1 <> worker_id2)
-);
 
 CREATE TABLE Speciality (
     speciality_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -124,15 +112,5 @@ CREATE TABLE MatchedWorkers (
     reason TEXT NOT NULL,
     --
     PRIMARY KEY (worker_id1, worker_id2),
-    CHECK (score >= 0 and score <= 100)
-);
-
-CREATE TABLE MatchedWorkerTeam (
-    worker_id INTEGER NOT NULL,
-    team_id INTEGER NOT NULL,
-    score INTEGER NOT NULL DEFAULT 0,
-    reason TEXT NOT NULL,
-    --
-    PRIMARY KEY (team_id, worker_id),
     CHECK (score >= 0 and score <= 100)
 );

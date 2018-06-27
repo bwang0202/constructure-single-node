@@ -269,20 +269,38 @@ class SqliteDatabaseConnection(object):
 
 class DatabaseConnection(SqliteDatabaseConnection):
     def __init__(self, read_only=True):
-        super(DatabaseConnection, self).__init__(config.db_path, read_only)
+        super(DatabaseConnection, self).__init__(config.data_db_path, read_only)
 
-def invalidateWorker(self, worker_id):
-    with DatabaseConnection(read_only=False) as conn:
+class TodoDatabaseConnection(SqliteDatabaseConnection):
+    def __init__(self):
+        super(DatabaseConnection, self).__init__(config.todo_db_path, False)
+
+def get_next_worker_id():
+    with TodoDatabaseConnection() as conn:
         conn.begin()
-        conn.execute("DELETE FROM MatchedWorkers WHERE worker_id1 = ? OR worker_id2 = ?", (worker_id, worker_id))
-        conn.execute("DELETE FROM MatchedWorkerTeam WHERE worker_id = ?", (worker_id, ))
+        worker_id = conn.execute("""
+            SELECT worker_id
+            FROM Todos
+            LIMIT 1
+            """)
+        if len(worker_id) == 0:
+            return None
+        conn.execute("""
+            DELETE FROM Todos WHERE worker_id = ?
+            """, worker_id[0])
         conn.commit()
+        return worker_id[0]
 
-def invalidateTeam(self, team_id):
-    with DatabaseConnection(read_only=False) as conn:
-        self.begin()
-        self.execute("DELETE FROM MatchedWorkerTeam WHERE team_id = ?", (team_id, ))
-        self.commit()
+def put_next_worker_id(worker_id):
+    with TodoDatabaseConnection() as conn:
+        conn.begin()
+        if not len(conn.execute("SELECT worker_id FROM Todos WHERE worker_id = ?", (worker_id,))):
+            return
+        conn.execute("""
+            INSERT INTO Todos VALUES (?)
+            """, (worker_id, ))
+        conn.commit()
+        return
 
 def get_all_workers():
     with DatabaseConnection() as conn:
@@ -312,15 +330,6 @@ def insert_match_result(worker_id1, worker_id2, score, reason):
             INSERT INTO MatchedWorkers
             VALUES (?, ?, ?, ?)
             """, (worker_id2, worker_id1, score, reason))
-        conn.commit()
-
-def insert_match_team_result(worker_id, team_id, score, reason):
-    with DatabaseConnection(read_only=False) as conn:
-        conn.begin()
-        conn.execute("""
-            INSERT INTO MatchedWorkerTeam
-            VALUES (?, ?, ?, ?)
-            """, (worker_id, team_id, score, reason))
         conn.commit()
 
 def get_worker_speciality(worker_id):
@@ -390,31 +399,10 @@ def get_workers_same_experience(worker_id1, worker_id2):
             return None
         return same_team
 
-def get_team_needs(worker_id, team_id):
-    with DatabaseConnection() as conn:
-        result = conn.execute("""
-            SELECT Speciality.name
-            FROM TeamNeedsSpeciality
-            JOIN WorkerHasSpeciality USING (speciality_id)
-            JOIN Speciality USING (speciality_id)
-            WHERE TeamNeedsSpeciality.team_id = ?
-            AND WorkerHasSpeciality.worker_id = ?
-            AND TeamNeedsSpeciality.count > (SELECT count(WorkerPartOfTeam.worker_id)
-                                             FROM WorkerPartOfTeam
-                                             JOIN WorkerHasSpeciality USING (worker_id)
-                                             WHERE team_id = TeamNeedsSpeciality.team_id
-                                             AND speciality_id = TeamNeedsSpeciality.speciality_id
-                                             AND ends IS NULL)
-            LIMIT 1
-            """, (team_id, worker_id))
-        if result:
-            return result[0]
-        return None
-
 def get_team_homies(worker_id, team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT WorkerTeamProject.worker_id
+            SELECT COUNT(DISTINCT WorkerTeamProject.worker_id)
             FROM WorkerTeamProject
             JOIN Teams USING (team_id)
             JOIN Workers USING (worker_id)
@@ -435,37 +423,30 @@ def get_team_ex_members(worker_id, team_id):
 def get_team_ex_teammates(worker_id, team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT worker_id
-            FROM WorkerPartOfTeam
+            SELECT COUNT(DISTINCT WorkerTeamProject.worker_id)
+            FROM WorkerTeamProject
             WHERE team_id = ?
             AND ends is NULL
             AND worker_id IN (
                 SELECT b.worker_id
-                FROM WorkerPartOfTeam a
-                JOIN WorkerPartOfTeam b ON (a.team_id = b.team_id)
+                FROM WorkerTeamProject a
+                JOIN WorkerTeamProject b ON (a.team_id = b.team_id)
                 WHERE a.worker_id = ?
-                AND ((a.ends is NULL AND b.ends is NULL)
-                OR (a.ends is NULL AND a.starts < b.ends)
-                OR (b.ends is NULL AND b.starts < a.ends)
-                OR (a.ends > b.starts AND a.starts < b.ends)
+                AND a.ends IS NOT NULL AND b.ends IS NOT NULL
+                AND ((a.ends > b.starts AND a.starts < b.ends)
                 OR (b.ends > a.starts AND b.starts < a.ends))
             )
             """, (team_id, worker_id))
 
-def get_top_matched_workers(worker_id, matched_workers, limit=3):
+def get_cooperation(worker_id, team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT (SELECT name FROM Workers
-                    WHERE worker_id = MatchedWorkers.worker_id2),
-                    reason
-            FROM MatchedWorkers
-            WHERE worker_id1 = ?
-            AND worker_id2 in (%s)
-            ORDER BY score DESC
-            LIMIT ?
-            """ % ",".join(["?" for x in matched_workers]),
-            (worker_id, ) + tuple(matched_workers) + (limit, ))
-
+            SELECT COUNT(DISTINCT project_id)
+            FROM WorkerTeamProject
+            WHERE worker_id = ?
+            AND team_id = ?
+            AND ends IS NOT NULL
+            """, (worker_id, team_id))
 
 ####### UTIL FUNCS ###############################################
 
