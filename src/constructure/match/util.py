@@ -451,7 +451,12 @@ def get_cooperation(worker_id, team_id):
 def get_specialty_candidate_workers(team_id, specialty):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT DISTINCT worker_id
+            SELECT Workers.name,
+                   Workers.worker_id,
+                   (SELECT Places.name
+                    FROM Places
+                    WHERE place_id = Workers.place_id),
+                   Workers.certified
             FROM Workers
             JOIN WorkerHasSpecialty USING (worker_id)
             JOIN Specialty USING (specialty_id)

@@ -8,6 +8,7 @@ from django.http import HttpResponse
 
 import json
 import traceback
+import urllib
 
 from match.match import *
 
@@ -167,14 +168,22 @@ def specialty(request):
     if request.method == "GET":
         return HttpResponse(json.dumps({'specialty': get_specialties()}))
 
-################
+################ Get specialty workers for team ###############
 
 def worker_match(request):
     if request.method == "GET":
-        return HttpResponse(json.dumps({'data': get_matched_workers(
-            request.GET.get('worker_id'))}))
+        try:
+            specialty = request.GET.get('specialty')
+            # FIXME:
+            specialty = urllib.unquote(specialty).decode('utf8') 
+            return HttpResponse(json.dumps({'workers': match_team_specialty_workers(
+                request.GET.get('team_id'), specialty)}))
+        except Exception as e:
+            resp = HttpResponse(json.dumps({'msg': e.message}))
+            resp.status_code = 500
+            return resp
 
-    return echo(request)
+    raise RuntimeException()
 
 def team_match(request):
     if request.method == "GET":

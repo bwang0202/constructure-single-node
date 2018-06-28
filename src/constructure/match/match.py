@@ -105,8 +105,16 @@ def match_team_specialty_workers(team_id, specialty):
     specialty_candidate_workers = get_specialty_candidate_workers(team_id, specialty)
 
     # compute cci for each
-    worker_ccis = {}
-    for (worker_id,) in specialty_candidate_workers:
-        worker_ccis[worker_id] = compute_match_for_worker_team(worker_id, team_id)
+    worker_ccis = []
+    for (name, worker_id, hometown, certified) in specialty_candidate_workers:
+        (score, notes) = compute_match_for_worker_team(worker_id, team_id)
+        worker_ccis.append({
+            'name': name,
+            'id': worker_id,
+            'hometown': hometown,
+            'cci': score,
+            'certified': True if certified else False,
+            'notes': notes
+            })
 
     return worker_ccis
