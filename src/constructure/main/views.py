@@ -12,6 +12,8 @@ import urllib
 
 from match.match import *
 
+BACKGROUND = False
+
 def build_worker(body):
     worker = Worker(body['name'], body['password'], body['idcard'],
         body['picture'], body['hometown'], body['specialty'])
@@ -140,7 +142,12 @@ def worker_exp(request):
             body = json.loads(request.body)
             add_worker_team_project(body['worker_id'], body['team'], body['project'],
                 body['starts'], body.get('ends', None))
-            put_next_worker_id(body['worker_id'])
+
+            # FIXME:
+            if BACKGROUND:
+                put_next_worker_id(body['worker_id'])
+            else:
+                compute_match_for_worker(worker_id)
         except ResouceNotFound as e:
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 404
@@ -169,15 +176,19 @@ def specialty(request):
         return HttpResponse(json.dumps({'specialty': get_specialties()}))
 
 ################ Get specialty workers for team ###############
+################ Get Workers matched workers ##################
 
 def worker_match(request):
     if request.method == "GET":
         try:
-            specialty = request.GET.get('specialty')
-            # FIXME:
-            specialty = urllib.unquote(specialty).decode('utf8') 
-            return HttpResponse(json.dumps({'workers': match_team_specialty_workers(
-                request.GET.get('team_id'), specialty)}))
+            if request.GET.get('team_id'):
+                specialty = request.GET.get('specialty')
+                # FIXME:
+                specialty = urllib.unquote(specialty).decode('utf8') 
+                return HttpResponse(json.dumps({'workers': match_team_specialty_workers(
+                    request.GET.get('team_id'), specialty)}))
+            if request.GET.get('worker_id'):
+                return HttpResponse(json.dumps(get_worker_info(request.GET.get('worker_id'))))
         except Exception as e:
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 500
@@ -185,9 +196,16 @@ def worker_match(request):
 
     raise RuntimeException()
 
+################ Get team info ###############################
+
 def team_match(request):
     if request.method == "GET":
-        return HttpResponse(json.dumps({'data': get_matched_teams(
-            request.GET.get('worker_id'))}))
-    return echo(request)
+        try:
+            return HttpResponse(json.dumps(get_matched_teams(
+                request.GET.get('team_id'))))
+        except Exception as e:
+            resp = HttpResponse(json.dumps({'msg': e.message}))
+            resp.status_code = 500
+            return resp
+    raise RuntimeException()
 

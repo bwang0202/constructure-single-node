@@ -353,17 +353,79 @@ def get_worker_cert(worker_id):
             LIMIT 1
             """) 
 
-def get_worker_info(worker_id):
+def get_worker_info_helper(worker_id):
     with DatabaseConnection() as conn:
-        (name, age, work_age, education, hometown) = conn.execute("""
-            SELECT Workers.name, age, work_age, education,
-                   (SELECT Places.name FROM Places WHERE Places.place_id = Workers.place_id)
+        return conn.execute("""
+            SELECT Workers.name, picture, Specialty.name
             FROM Workers
-            WHERE worker_id = ?
+            JOIN WorkerHasSpecialty USING (worker_id)
+            JOIN Specialty USING (specialty_id)
+            WHERE Workers.worker_id = ?
             LIMIT 1
             """, (worker_id, ))[0]
-    return Worker(name, age, work_age, education, hometown,
-            worker_id).add_specialty(get_worker_specialty(worker_id))
+
+def get_team_info_helper(team_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT name, picture, LaborTeams.name
+            FROM Teams
+            JOIN TeamWorksWithLaborTeams USING (team_id)
+            JOIN LaborTeams USING (laborteam_id)
+            WHERE Teams.team_id = ?
+            LIMIT 1
+            """, (team_id, ))[0]
+
+def get_matched_workers_for_worker(worker_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT a.name, a.worker_id, Specialty.name, score, note
+            FROM Workers a
+            JOIN MatchedWorkers ON (a.worker_id = MatchedWorkers.worker_id1)
+            JOIN Workers b ON (b.worker_id = MatchedWorkers.worker_id2)
+            JOIN WorkerHasSpecialty ON (WorkerHasSpecialty.worker_id = a.worker_id)
+            JOIN Specialty ON (Specialty.specialty_id = WorkerHasSpecialty.specialty_id)
+            WHERE b.worker_id = ?
+            AND score > 0
+            ORDER BY score DESC
+            """)
+
+def get_ex_projects_for_worker(worker_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT name, picture
+            FROM Projects
+            JOIN WorkerTeamProject USING (project_id)
+            WHERE worker_id = ?
+            """, (worker_id, ))
+
+def get_ex_teams_for_worker(worker_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT team_id, name
+            FROM Teams
+            JOIN WorkerTeamProject USING (team_id)
+            WHERE worker_id = ?
+            """, (worker_id, ))
+
+def get_ex_projects_for_team(team_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT name, picture
+            FROM Projects
+            JOIN WorkerTeamProject USING (project_id)
+            WHERE team_id = ?
+            """, (team_id, ))
+
+def get_current_workers_for_team(team_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
+            SELECT COUNT(WorkerTeamProject.worker_id), Specialty.name
+            FROM WorkerTeamProject
+            JOIN WorkerHasSpecialty USING (worker_id)
+            JOIN Specialty USING (specialty_id)
+            GROUP BY specialty_id
+            WHERE team_id = ?
+            """, (team_id, ))
 
 def _form_common_date(start, end):
     if not end:

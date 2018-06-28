@@ -34,9 +34,7 @@ def _match_specialites(worker1, worker2):
         return MatchEntry(100, weight, worker1.specialty.name, is_specialty=True)
     return MatchEntry(0, weight, is_specialty=True)
 
-def _match_hometown(worker1, worker2):
-    hometown1 = worker1.hometown.split(",")
-    hometown2 = worker2.hometown.split(",")
+def _match_hometown(hometown1, hometown2):
     result = []
     # Longest common prefix
     for i in range(len(hometown1)):
@@ -47,20 +45,20 @@ def _match_hometown(worker1, worker2):
         result.append(hometown1[i])
     return MatchEntry(0 if not result else 100,
         MatchWorkersConstants.hometown,
-        "%s" % ",".join(result))
+        "老乡")
 
 def _match_same_experience(same_experiences):
     return MatchEntry(0 if not same_experiences else 100,
         MatchWorkersConstants.team,
-        ",".join(same_experiences))
+        "搭档")
 
 def match_workers(worker_id1, worker_id2):
-    worker1 = get_worker_info(worker_id1)
-    worker2 = get_worker_info(worker_id2)
+    (_, _, hometown1) = get_worker_info_helper(worker_id1)
+    (_, _, hometown2) = get_worker_info_helper(worker_id2)
 
     same_experiences = get_workers_same_experience(worker_id1, worker_id2)
 
-    return [_match_hometown(worker1, worker2),
+    return [_match_hometown(hometown1.split(","), hometown2.split(",")),
             _match_same_experience(same_experiences)]
 
 def compute_match_for_worker(worker_id):
@@ -118,3 +116,42 @@ def match_team_specialty_workers(team_id, specialty):
             })
 
     return worker_ccis
+
+
+def get_worker_info(worker_id):
+    (name, picture, specialty) = get_worker_info_helper(worker_id)
+    matched_workers = []
+    for (name2, worker_id2, specialty2, score2, note2) in get_matched_workers_for_worker(worker_id):
+        matched_workers.append({'name': name2, 'worker_id': worker_id2,
+            'specialty': specialty2, 'cci': score2, 'note': note2})
+    ex_projects = []
+    for (name, picture) in get_ex_projects_for_worker(worker_id):
+        ex_projects.append({'name': name, 'picture': picture})
+    ex_teams = []
+    for (team_id, name) in get_ex_teams_for_worker(worker_id):
+        ex_teams.append({'name':name, 'team_id': team_id})
+    return {
+        'name': name,
+        'specialty': specialty,
+        'picture': picture,
+        'matched_workers': matched_workers,
+        'ex_projects': ex_projects,
+        'ex_teams': ex_teams
+    }
+
+def get_team_info(team_id):
+    (name, picture, laborcompany) = get_team_info_helper(team_id)
+    ex_projects = []
+    for (name2, picture2) in get_ex_projects_for_team(team_id):
+        ex_projects.append({'name': name2, 'picture': picture2})
+    current_workers = []
+    for (count, specialty) in get_current_workers_for_team(team_id):
+        current_workers.append({'specialty': specialty, 'number': count,
+            'note': "共同合作"})
+    return {
+        'name': name,
+        'picture': picture,
+        'laborcompany': laborcompany,
+        'ex_projects': ex_projects,
+        'current_workers': current_workers
+    }
