@@ -63,12 +63,6 @@ def match_workers(worker_id1, worker_id2):
     return [_match_hometown(worker1, worker2),
             _match_same_experience(same_experiences)]
 
-def start_match_calculation(worker_id):
-    if not worker_id:
-        raise RuntimeException("worker_id %s" % str(worker_id))
-    # Background TODO
-    compute_match_for_worker(worker_id)
-
 def compute_match_for_worker(worker_id):
     all_workers = get_all_workers()
     for x in all_workers:
@@ -77,22 +71,34 @@ def compute_match_for_worker(worker_id):
         # FIXME: check existing match result first
         match_entries = match_workers(x[0], worker_id)
         score = 0
+        notes = []
         for y in match_entries:
             score += y.score * y.weight
-        insert_match_result(x[0], worker_id, score,
-                            "; ".join([z.keyword for z in match_entries]))
+            if y.score:
+                notes.append(y.keyword)
+        insert_match_result(x[0], worker_id, score, ",".join(notes))
 
-def compute_match_for_worker_team(worker_id, team_id):
+def match_worker_team_helper(worker_id, team_id):
     hommies = get_team_homies(worker_id, team_id)
     teammates = get_team_ex_teammates(worker_id, team_id)
     cooperations = get_cooperation(worker_id, team_id)
 
     return [MatchEntry(100 if hommies > 10 else hommies * 10,
-                MatchTeamsConstants.hometown, "老乡"),
+                MatchTeamsConstants.hometown, "老乡多"),
             MatchEntry(100 if teammates > 10 else teammates * 10,
-                MatchTeamsConstants.teammates, "旧搭档"),
+                MatchTeamsConstants.teammates, "旧搭档多"),
             MatchEntry(100 if len(cooperations) else 0,
                 MatchTeamsConstants.cooperation, "曾合作")]
+
+def compute_match_for_worker_team(worker_id, team_id):
+    match_entries = match_worker_team_helper(worker_id, team_id)
+    score = 0
+    notes = []
+    for y in match_entries:
+        score += y.score * y.weight
+        if y.score:
+            notes.append(y.keyword)
+    return (score, ",".join(notes))
 
 def match_team_specialty_workers(team_id, specialty):
     # get unhired workers:
