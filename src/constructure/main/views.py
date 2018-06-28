@@ -65,7 +65,6 @@ def team(request):
             body = json.loads(request.body)
             team = build_team(body)
             team_id = add_team(team)
-            start_team_match_calculation(team_id)
             return HttpResponse(json.dumps({'msg': 'success', 'team_id': team_id}))
         except DuplicateResource as e:
             resp = HttpResponse(json.dumps({'msg': 'Team with same registration ID already exists'}))
@@ -128,12 +127,13 @@ def worker_exp(request):
     if request.method == "GET":
         try:
             worker_id = request.GET.get('worker_id')
-            return HttpResponse(json.dumps({'experiences': get_work_experience(worker_id)}))
+            return HttpResponse(json.dumps({'experiences': get_worker_experience(worker_id)}))
         except ResouceNotFound:
             resp = HttpResponse(json.dumps({'msg': 'worker not found'}))
             resp.status_code = 404
             return resp
         except Exception as e:
+            traceback.print_exc()
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 500
             return resp
@@ -147,12 +147,14 @@ def worker_exp(request):
             if BACKGROUND:
                 put_next_worker_id(body['worker_id'])
             else:
-                compute_match_for_worker(worker_id)
+                compute_match_for_worker(body['worker_id'])
+            return HttpResponse(json.dumps({'msg': 'success'}))
         except ResouceNotFound as e:
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 404
             return resp
         except Exception as e:
+            traceback.print_exc()
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 500
             return resp
@@ -190,6 +192,7 @@ def worker_match(request):
             if request.GET.get('worker_id'):
                 return HttpResponse(json.dumps(get_worker_info(request.GET.get('worker_id'))))
         except Exception as e:
+            traceback.print_exc()
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 500
             return resp
@@ -201,9 +204,10 @@ def worker_match(request):
 def team_match(request):
     if request.method == "GET":
         try:
-            return HttpResponse(json.dumps(get_matched_teams(
+            return HttpResponse(json.dumps(get_team_info(
                 request.GET.get('team_id'))))
         except Exception as e:
+            traceback.print_exc()
             resp = HttpResponse(json.dumps({'msg': e.message}))
             resp.status_code = 500
             return resp

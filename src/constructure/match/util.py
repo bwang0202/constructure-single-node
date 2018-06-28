@@ -10,6 +10,15 @@ import config
 from model import *
 from match import *
 
+class ResouceNotFound(Exception):
+    pass
+
+class DuplicateResource(Exception):
+    pass
+
+class InvalidCredential(Exception):
+    pass
+
 class Specialty:
     def __init__(self, name, specialty_id=None):
         self.name = name
@@ -52,7 +61,7 @@ def add_worker(worker):
     # Insert hometown if necessary
     place_id = insert_place_if_not_exist(worker.hometown)
     # Insert specialty if necessary
-    specialty_id = insert_specialty_if_not_exist(worker.specialty.name)
+    specialty_id = insert_specialty_if_not_exist(worker.specialty)
     # Insert worker
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
@@ -145,6 +154,8 @@ def add_worker_team_project(worker_id, team_name, project_name, starts, ends=Non
     worker_id = worker_exists(worker_id)
     team_id = team_exists(team_name)
     project_id = project_exists(project_name)
+
+    print(worker_id, team_id, project_id, starts, ends)
 
     # Insert
     with DatabaseConnection(read_only=False) as conn:
@@ -367,7 +378,7 @@ def get_worker_info_helper(worker_id):
 def get_team_info_helper(team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT name, picture, LaborTeams.name
+            SELECT Teams.name, Teams.picture, LaborTeams.name
             FROM Teams
             JOIN TeamWorksWithLaborTeams USING (team_id)
             JOIN LaborTeams USING (laborteam_id)
@@ -378,7 +389,7 @@ def get_team_info_helper(team_id):
 def get_matched_workers_for_worker(worker_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT a.name, a.worker_id, Specialty.name, score, note
+            SELECT a.name, a.worker_id, Specialty.name, score, reason
             FROM Workers a
             JOIN MatchedWorkers ON (a.worker_id = MatchedWorkers.worker_id1)
             JOIN Workers b ON (b.worker_id = MatchedWorkers.worker_id2)
@@ -387,7 +398,7 @@ def get_matched_workers_for_worker(worker_id):
             WHERE b.worker_id = ?
             AND score > 0
             ORDER BY score DESC
-            """)
+            """, (worker_id, ))
 
 def get_ex_projects_for_worker(worker_id):
     with DatabaseConnection() as conn:
@@ -423,8 +434,8 @@ def get_current_workers_for_team(team_id):
             FROM WorkerTeamProject
             JOIN WorkerHasSpecialty USING (worker_id)
             JOIN Specialty USING (specialty_id)
-            GROUP BY specialty_id
             WHERE team_id = ?
+            GROUP BY specialty_id
             """, (team_id, ))
 
 def _form_common_date(start, end):
@@ -578,8 +589,8 @@ def team_exists(team_name):
             SELECT team_id FROM Teams WHERE name = ?
             """, (team_name, ))
         if len(team_id) == 0:
-            raise ResouceNotFound("Team %s not found" % team_name)
-        return team_id[0]
+            raise ResouceNotFound("Team not found")
+        return team_id[0][0]
 
 def project_exists(project_name):
     with DatabaseConnection() as conn:
@@ -587,6 +598,6 @@ def project_exists(project_name):
             SELECT project_id FROM Projects WHERE name = ?
             """, (project_name,))
         if len(project_id) == 0:
-            raise ResouceNotFound("Project %s not found" % project_name)
-        return project_id[0]
+            raise ResouceNotFound("Project not found")
+        return project_id[0][0]
 

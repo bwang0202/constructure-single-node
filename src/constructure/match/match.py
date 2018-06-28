@@ -7,17 +7,9 @@
 
 import config
 
-from config import MatchWorkersConstants, MatchTeamWorkerConstants
+from config import *
 from util import *
 
-class ResouceNotFound(Exception):
-    pass
-
-class DuplicateResource(Exception):
-    pass
-
-class InvalidCredential(Exception):
-    pass
 
 class MatchEntry:
     def __init__(self, score, weight, keyword=None, is_specialty=False):
