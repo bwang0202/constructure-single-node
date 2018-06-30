@@ -187,7 +187,7 @@ def worker_match(request):
             if request.GET.get('team_id'):
                 specialty = request.GET.get('specialty')
                 # FIXME:
-                specialty = base64.decodestring(specialty).decode('utf8')
+                specialty = base64.decodestring(specialty + "==").decode('utf8')
                 return HttpResponse(json.dumps({'workers': match_team_specialty_workers(
                     request.GET.get('team_id'), specialty)}))
             if request.GET.get('worker_id'):
