@@ -9,6 +9,7 @@ from django.http import HttpResponse
 import json
 import traceback
 import urllib
+import base64
 
 from match.match import *
 
@@ -186,7 +187,7 @@ def worker_match(request):
             if request.GET.get('team_id'):
                 specialty = request.GET.get('specialty')
                 # FIXME:
-                specialty = urllib.unquote(specialty).decode('utf8') 
+                specialty = base64.decodestring(specialty).decode('utf8')
                 return HttpResponse(json.dumps({'workers': match_team_specialty_workers(
                     request.GET.get('team_id'), specialty)}))
             if request.GET.get('worker_id'):
