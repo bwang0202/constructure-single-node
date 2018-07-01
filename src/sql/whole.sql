@@ -55,8 +55,8 @@ CREATE TABLE LaborTeams (
 );
 
 CREATE TABLE TeamWorksWithLaborTeams (
-    team_id INTEGER NOT NULL REFERENCES Teams(team_id),
-    laborteam_id INTEGER NOT NULL REFERENCES LaborTeams(laborteam_id),
+    team_id INTEGER NOT NULL REFERENCES Teams(team_id) ON DELETE CASCADE,
+    laborteam_id INTEGER NOT NULL REFERENCES LaborTeams(laborteam_id) ON DELETE CASCADE,
     --
     PRIMARY KEY (team_id, laborteam_id)
 );

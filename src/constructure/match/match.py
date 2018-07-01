@@ -41,7 +41,7 @@ def _match_hometown(hometown1, hometown2):
 
 def _match_same_experience(same_experiences):
     return MatchEntry(0 if not same_experiences else 100,
-        MatchWorkersConstants.team,
+        MatchWorkersConstants.teammates,
         "搭档")
 
 def match_workers(worker_id1, worker_id2):
@@ -49,7 +49,6 @@ def match_workers(worker_id1, worker_id2):
     (_, _, hometown2) = get_worker_info_helper(worker_id2)
 
     same_experiences = get_workers_same_experience(worker_id1, worker_id2)
-
     return [_match_hometown(hometown1.split(","), hometown2.split(",")),
             _match_same_experience(same_experiences)]
 
@@ -65,7 +64,7 @@ def compute_match_for_worker(worker_id):
         for y in match_entries:
             score += y.score * y.weight
             if y.score:
-                notes.append(y.keyword)
+                notes.append(y.keyword.decode('utf8'))
         insert_match_result(x[0], worker_id, score, ",".join(notes))
 
 def match_worker_team_helper(worker_id, team_id):
@@ -73,12 +72,12 @@ def match_worker_team_helper(worker_id, team_id):
     teammates = get_team_ex_teammates(worker_id, team_id)
     cooperations = get_cooperation(worker_id, team_id)
 
-    return [MatchEntry(100 if hommies > 10 else hommies * 10,
-                MatchTeamsConstants.hometown, "老乡多"),
+    return [MatchEntry(100 if cooperations else 0,
+                MatchTeamsConstants.cooperation, "曾合作"),
             MatchEntry(100 if teammates > 10 else teammates * 10,
                 MatchTeamsConstants.teammates, "旧搭档多"),
-            MatchEntry(100 if len(cooperations) else 0,
-                MatchTeamsConstants.cooperation, "曾合作")]
+            MatchEntry(100 if hommies > 10 else hommies * 10,
+                MatchTeamsConstants.hometown, "老乡多")]
 
 def compute_match_for_worker_team(worker_id, team_id):
     match_entries = match_worker_team_helper(worker_id, team_id)
@@ -111,7 +110,7 @@ def match_team_specialty_workers(team_id, specialty):
 
 
 def get_worker_info(worker_id):
-    (name, picture, specialty) = get_worker_info_helper(worker_id)
+    (name, picture, specialty) = get_worker_specialty_helper(worker_id)
     matched_workers = []
     for (name2, worker_id2, specialty2, score2, note2) in get_matched_workers_for_worker(worker_id):
         matched_workers.append({'name': name2, 'worker_id': worker_id2,

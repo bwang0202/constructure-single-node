@@ -155,13 +155,11 @@ def add_worker_team_project(worker_id, team_name, project_name, starts, ends=Non
     team_id = team_exists(team_name)
     project_id = project_exists(project_name)
 
-    print(worker_id, team_id, project_id, starts, ends)
-
     # Insert
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
-            INSERT INTO WorkerTeamProject (worker_id, team_id, project_id, starts, ends)
+            INSERT OR REPLACE INTO WorkerTeamProject (worker_id, team_id, project_id, starts, ends)
             VALUES (?, ?, ?, ?, ?)
             """, (worker_id, team_id, project_id, starts, ends))
         conn.commit()
@@ -334,11 +332,11 @@ def insert_match_result(worker_id1, worker_id2, score, reason):
     with DatabaseConnection(read_only=False) as conn:
         conn.begin()
         conn.execute("""
-            INSERT INTO MatchedWorkers
+            INSERT OR REPLACE INTO MatchedWorkers
             VALUES (?, ?, ?, ?)
             """, (worker_id1, worker_id2, score, reason))
         conn.execute("""
-            INSERT INTO MatchedWorkers
+            INSERT OR REPLACE INTO MatchedWorkers
             VALUES (?, ?, ?, ?)
             """, (worker_id2, worker_id1, score, reason))
         conn.commit()
@@ -367,6 +365,18 @@ def get_worker_cert(worker_id):
 def get_worker_info_helper(worker_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
+            SELECT Workers.name, picture,
+                (SELECT Places.name
+                 FROM Places
+                 WHERE place_id = Workers.place_id)
+            FROM Workers
+            WHERE Workers.worker_id = ?
+            LIMIT 1
+            """, (worker_id, ))[0]
+
+def get_worker_specialty_helper(worker_id):
+    with DatabaseConnection() as conn:
+        return conn.execute("""
             SELECT Workers.name, picture, Specialty.name
             FROM Workers
             JOIN WorkerHasSpecialty USING (worker_id)
@@ -380,8 +390,8 @@ def get_team_info_helper(team_id):
         return conn.execute("""
             SELECT Teams.name, Teams.picture, LaborTeams.name
             FROM Teams
-            JOIN TeamWorksWithLaborTeams USING (team_id)
-            JOIN LaborTeams USING (laborteam_id)
+            JOIN TeamWorksWithLaborTeams ON (Teams.team_id = TeamWorksWithLaborTeams.team_id)
+            JOIN LaborTeams ON (TeamWorksWithLaborTeams.laborteam_id = LaborTeams.laborteam_id)
             WHERE Teams.team_id = ?
             LIMIT 1
             """, (team_id, ))[0]
@@ -412,7 +422,7 @@ def get_ex_projects_for_worker(worker_id):
 def get_ex_teams_for_worker(worker_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT team_id, name
+            SELECT DISTINCT team_id, name
             FROM Teams
             JOIN WorkerTeamProject USING (team_id)
             WHERE worker_id = ?
@@ -421,7 +431,7 @@ def get_ex_teams_for_worker(worker_id):
 def get_ex_projects_for_team(team_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT name, picture
+            SELECT DISTINCT name, picture
             FROM Projects
             JOIN WorkerTeamProject USING (project_id)
             WHERE team_id = ?
@@ -445,10 +455,10 @@ def _form_common_date(start, end):
 
 def get_workers_same_experience(worker_id1, worker_id2):
     # TODO: get multiple
-    same_team = "曾合作"
+    same_team = "曾搭档"
     with DatabaseConnection() as conn:
         result = conn.execute("""
-            SELECT t.name, p.name
+            SELECT t.name, p.name,
             CASE WHEN a.starts < b.starts THEN b.starts ELSE a.starts END,
             CASE WHEN (a.ends IS NULL AND b.ends IS NULL) THEN NULL
                  WHEN (a.ends IS NULL) THEN b.ends
@@ -482,16 +492,7 @@ def get_team_homies(worker_id, team_id):
             WHERE Teams.team_id = ?
             AND ends is NULL
             AND Workers.place_id = (SELECT place_id FROM Workers WHERE Workers.worker_id = ?)
-            """, (team_id, worker_id))[0]
-
-def get_team_ex_members(worker_id, team_id):
-    with DatabaseConnection() as conn:
-        return conn.execute("""
-            SELECT starts, ends
-            FROM WorkerTeamProject
-            WHERE team_id = ? AND worker_id = ?
-            AND ends IS NOT NULL
-            """, (team_id, worker_id))
+            """, (team_id, worker_id))[0][0]
 
 def get_team_ex_teammates(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -505,11 +506,13 @@ def get_team_ex_teammates(worker_id, team_id):
                 FROM WorkerTeamProject a
                 JOIN WorkerTeamProject b ON (a.team_id = b.team_id)
                 WHERE a.worker_id = ?
-                AND a.ends IS NOT NULL AND b.ends IS NOT NULL
-                AND ((a.ends > b.starts AND a.starts < b.ends)
+                AND ((a.ends is NULL AND b.ends is NULL)
+                OR (a.ends is NULL AND a.starts < b.ends)
+                OR (b.ends is NULL AND b.starts < a.ends)
+                OR (a.ends > b.starts AND a.starts < b.ends)
                 OR (b.ends > a.starts AND b.starts < a.ends))
             )
-            """, (team_id, worker_id))[0]
+            """, (team_id, worker_id))[0][0]
 
 def get_cooperation(worker_id, team_id):
     with DatabaseConnection() as conn:
@@ -519,7 +522,7 @@ def get_cooperation(worker_id, team_id):
             WHERE worker_id = ?
             AND team_id = ?
             AND ends IS NOT NULL
-            """, (worker_id, team_id))[0]
+            """, (worker_id, team_id))[0][0]
 
 def get_specialty_candidate_workers(team_id, specialty):
     with DatabaseConnection() as conn:
