@@ -37,21 +37,20 @@
 				   'type_of_teams': 2, 'speciality': 'mujiang', 'certificate': 1} Response: {'msg':'worker added', 
 				   'worker_id': 123, 'worker_level': 6, 'worker_percentile': 34}
     			 */
-    			// TODO: pupolate actual data into json after rest of the pages are implemented
 		    	var obj = {};
-		    	obj["name"] = 'xing ming';
+		    	obj["name"] = sessionStorage.getItem("name");
 		    	obj["age"] = sessionStorage.getItem("age");
-		    	obj["work_age"] = '20';
-		    	obj["education"] = '3';
+		    	obj["work_age"] = sessionStorage.getItem("work_age");
+		    	obj["education"] = sessionStorage.getItem("education");
 		    	obj["hometown"] = sessionStorage.getItem("hometown");
-		    	obj["jobs"] = '4';
-		    	obj["projects"] = '10';
-		    	obj["average_project_days"] = '100';
-		    	obj["type_of_projects"] = '2';
-		    	obj["num_of_teams"] = '2';
-		    	obj["type_of_teams"] = '2';
+		    	obj["jobs"] = sessionStorage.getItem("jobs");
+		    	obj["projects"] = sessionStorage.getItem("projects");
+		    	obj["average_project_days"] = sessionStorage.getItem("average_project_days");
+		    	obj["type_of_projects"] = sessionStorage.getItem("type_of_projects");
+		    	obj["num_of_teams"] = sessionStorage.getItem("num_of_teams");
+		    	obj["type_of_teams"] = sessionStorage.getItem("type_of_teams");
 		    	obj["speciality"] = sessionStorage.getItem("speciality");
-		    	obj["certificate"] = '1';
+		    	obj["certificate"] = sessionStorage.getItem("certificate");
 		    	var json = JSON.stringify(obj);
     			console.log(json);
 
@@ -106,7 +105,7 @@
 
 			<div class="row">
 				<div class="col-xs-12 quiz-title">
-					<p>在__读过书：</p>
+					<p>在__读过书？</p>
 				</div>
 			</div>
 
