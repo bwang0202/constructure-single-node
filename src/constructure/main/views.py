@@ -14,17 +14,24 @@ from match.match import *
 DO_MATCHING = False
 DO_COMPETING = True
 
+education_enum = {"小学": 1, "初中": 2, "高中": 3, "本科": 4}
+certificate_enum = {"尚未认证": 0, "初级": 1, "中级": 2, "高级": 3, "技师": 4}
+projects_enum = {"单独住宅": 1, "住宅小区": 2, "公共建筑": 3, "办公楼": 4}
+teams_enum = {"世界企业": 4, "全国企业": 3, "地区领头企业": 2, "地区企业": 1}
+
+
 def test(request):
     print('this is a test log')
     return HttpResponse('Testing view.')
 
+
 def build_worker(body):
     worker = Worker(body['name'], body['age'], body['work_age'],
-        body['education'], body['hometown'], body['jobs'], body['projects'],
-        body['average_project_days'], body['type_of_projects'],
-        body['num_of_teams'], body['type_of_teams'])
+        education_enum.get(body['education'], 1), body['hometown'], body['jobs'], body['projects'],
+        body['average_project_days'], projects_enum.get(body['type_of_projects'], 1),
+        body['num_of_teams'], teams_enum.get(body['type_of_teams'], 1))
     worker.specialities.append(body['speciality'])
-    worker.certificates.append(body['certificate'])
+    worker.certificates.append(certificate_enum.get(body['certificate'], 0))
     return worker
 
 
@@ -65,6 +72,8 @@ def worker(request):
             resp_obj['worker_level'] = 10 if worker_level > 100 else worker_level/10
             update_worker_level(worker_id, worker_level)
             resp_obj['worker_percentile'] = compute_worker_percentile(worker_id)
+            resp_obj['worker_skill'] = worker.compute_worker_skill()
+            resp_obj['worker_experience'] = worker.compute_worker_experience()
 
         return HttpResponse(json.dumps(resp_obj))
 
