@@ -86,7 +86,7 @@ def worker_logon(request):
             card_id = request.GET.get('id')
             pwd = request.GET.get('pwd')
             worker_id = verify_worker(card_id, pwd)
-            return HttpResponse(json.dumps({'worker_id': worker_id}))
+            return HttpResponse(json.dumps({'msg':'success', 'worker_id': worker_id}))
         except ResouceNotFound:
             resp = HttpResponse(json.dumps({'msg': 'worker not found'}))
             resp.status_code = 404
@@ -107,7 +107,7 @@ def team_logon(request):
             reg_id = request.GET.get('id')
             pwd = request.GET.get('pwd')
             team_id = verify_team(reg_id, pwd)
-            return HttpResponse(json.dumps({'team_id': team_id}))
+            return HttpResponse(json.dumps({'msg': 'success', 'team_id': team_id}))
         except ResouceNotFound:
             resp = HttpResponse(json.dumps({'msg': 'team not found'}))
             resp.status_code = 404
