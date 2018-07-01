@@ -29,9 +29,16 @@
 	<script>
         function dataUpdate() {
         	// TODO: update element with parameter from session storage
-            document.getElementById("aheadPerctg").textContent="78%";
-            document.getElementById("skillPerctg").setAttribute("aria-valuenow", sessionStorage.getItem("skillPerctg"));
-            document.getElementById("skillPerctg").setAttribute("style", "width:" + sessionStorage.getItem("skillPerctg") + "%");
+            document.getElementById("aheadPerctg").textContent = sessionStorage.getItem("worker_level") + "%";
+
+            document.getElementById("skillPerctg").setAttribute("aria-valuenow", sessionStorage.getItem("worker_skill"));
+            document.getElementById("skillPerctg").setAttribute("style", "width:" + sessionStorage.getItem("worker_skill") + "%");
+
+            document.getElementById("experiencePerctg").setAttribute("aria-valuenow", sessionStorage.getItem("worker_experience"));
+            document.getElementById("experiencePerctg").setAttribute("style", "width:" + sessionStorage.getItem("worker_experience") + "%");
+
+            document.getElementById("overallPerctg").setAttribute("aria-valuenow", sessionStorage.getItem("worker_percentile"));
+            document.getElementById("overallPerctg").setAttribute("style", "width:" + sessionStorage.getItem("worker_percentile") + "%");
         }
     </script>
 </head>
@@ -79,13 +86,13 @@
 			</div>
 
 			<div class="result-progress">
-				<div class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="56" aria-valuemin="0" aria-valuemax="100" style="width:56%">
+				<div id="experiencePerctg" class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="00" aria-valuemin="0" aria-valuemax="100" style="width:00%">
 			   		经验值
 			  	</div>
 			</div>
 
 			<div class="result-progress">
-				<div class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100" style="width:80%">
+				<div id="overallPerctg" class="progress-bar result-progress-bar" role="progressbar" aria-valuenow="00" aria-valuemin="0" aria-valuemax="100" style="width:00%">
 			   		综合吸引力
 			  	</div>
 			</div>

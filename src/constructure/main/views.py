@@ -84,7 +84,7 @@ def test_worker(request):
     print('inside test worker view function')
     print(request.body)
 
-    response = {'status':1, 'msg':'worker added', 'worker_id': 123, 'worker_percentile': 76, 'skill_percentile': 70, 'experience_percentile': 80, 'overall_percentile': 76}
+    response = {'status':1, 'msg':'worker added', 'worker_id': 123, 'worker_percentile': 90, 'worker_skill': 70, 'worker_experience': 60, 'worker_level': 80}
 
     return HttpResponse(json.dumps(response), content_type='application/json')
      

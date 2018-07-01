@@ -61,8 +61,11 @@
 				  	data: json,
 				  	success: function(response){
 				  		if (response.status == 1) {
-				  			// TODO: load response parameter into sessionStorage
-				  			sessionStorage.setItem("skillPerctg", "80");
+				  			sessionStorage.setItem("worker_level", response["worker_level"]);
+				  			sessionStorage.setItem("worker_skill", response["worker_skill"]);
+				  			sessionStorage.setItem("worker_experience", response["worker_experience"]);
+				  			sessionStorage.setItem("worker_percentile", response["worker_percentile"]);
+
 				  			location.assign("{% url 'result' %}");
 				  		}
 				    },
