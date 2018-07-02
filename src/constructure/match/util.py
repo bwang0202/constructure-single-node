@@ -82,7 +82,7 @@ def verify_worker(card_id, pwd):
         db_pwd = conn.execute("""
             SELECT worker_id, pwd FROM Workers WHERE card_id = ?
             """, (card_id, ))
-        if len(pwd) == 0:
+        if len(db_pwd) == 0:
             raise ResouceNotFound()
         if pwd != db_pwd[0][1]:
             raise InvalidCredential()
@@ -91,9 +91,9 @@ def verify_worker(card_id, pwd):
 def verify_team(reg_id, pwd):
     with DatabaseConnection() as conn:
         db_pwd = conn.execute("""
-            SELECT team_id, pwd FROM Workers WHERE registration_id = ?
+            SELECT team_id, pwd FROM Teams WHERE registration_id = ?
             """, (reg_id, ))
-        if len(pwd) == 0:
+        if len(db_pwd) == 0:
             raise ResouceNotFound()
         if pwd != db_pwd[0][1]:
             raise InvalidCredential()
@@ -145,7 +145,7 @@ def get_worker_experience(worker_id):
             WHERE worker_id = ?
             """, (worker_id, )):
             worker_experiences.append({'team': team_name, 'project': project_name,
-                'start': process_time(start), 'end': process_time(end)})
+                'start': start, 'end': end})
     return worker_experiences
 
 

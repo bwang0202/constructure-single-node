@@ -96,8 +96,9 @@ def worker_logon(request):
             resp.status_code = 403
             return resp
         except Exception as e:
+            traceback.print_exc()
             resp = HttpResponse(json.dumps({'msg': e.message}))
-            res.status_code = 500
+            resp.status_code = 500
             return resp
     raise RuntimeException()
 
@@ -117,8 +118,9 @@ def team_logon(request):
             resp.status_code = 403
             return resp
         except Exception as e:
+            traceback.print_exc()
             resp = HttpResponse(json.dumps({'msg': e.message}))
-            res.status_code = 500
+            resp.status_code = 500
             return resp
     raise RuntimeException()
 
@@ -186,9 +188,7 @@ def worker_match(request):
         try:
             if request.GET.get('team_id'):
                 specialty = request.GET.get('specialty')
-                # FIXME:
-                specialty = base64.decodestring(specialty + "==").decode('utf8').strip()
-                return HttpResponse(json.dumps({'workers': match_team_specialty_workers(
+                return HttpResponse(json.dumps({'msg':'success', 'workers': match_team_specialty_workers(
                     request.GET.get('team_id'), specialty)}))
             if request.GET.get('worker_id'):
                 return HttpResponse(json.dumps(get_worker_info(request.GET.get('worker_id'))))
