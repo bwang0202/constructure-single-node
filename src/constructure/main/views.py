@@ -119,13 +119,12 @@ def worker(request):
         resp_obj = {'msg': 'worker added', 'id': worker_id}
 
         if DO_COMPETING:
-            worker_level = worker.get_worker_level()
-            resp_obj['worker_level'] = 10 if worker_level > 100 else worker_level/10
-            update_worker_level(worker_id, worker_level)
+            resp_obj['worker_level'] = worker.get_worker_level()
             resp_obj['worker_percentile'] = compute_worker_percentile(worker_id)
             resp_obj['worker_skill'] = worker.compute_worker_skill()
             resp_obj['worker_experience'] = worker.compute_worker_experience()
 
+        print(resp_obj)
         return HttpResponse(json.dumps(resp_obj))
 
     return echo(request)
