@@ -70,12 +70,14 @@ class Worker:
         return self.worker_level
 
     def compute_worker_experience(self):
-        return self.type_of_teams + (3 if self.projects > 9 else self.projects/3) \
+        res = self.type_of_teams + (3 if self.projects > 9 else self.projects/3) \
              + (3 if self.average_project_days > 180 else self.average_project_days/60)
+        return res * 10 if res < 10 else 100
 
     def compute_worker_skill(self):
-        return 2 + (4 if self.jobs > 4 else self.jobs) \
+        res = 2 + (4 if self.jobs > 4 else self.jobs) \
              + (self.certificates[0] if len(self.certificates) > 0 else 0)
+        return res * 10 if res < 10 else 100
 
 class Team:
     def __init__(self, name, team_id=None):
