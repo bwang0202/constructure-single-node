@@ -101,7 +101,7 @@ def compute_worker_percentile(worker_id):
             SELECT count(worker_id) FROM Workers
             WHERE worker_level <= (SELECT worker_level FROM Workers WHERE worker_id = ?)
             """, (worker_id, ))[0][0]
-        return (lower + 0.0) / total
+        return (lower + 0.0) * 100 / total
 
 
 def add_worker(worker):
