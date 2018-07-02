@@ -29,7 +29,7 @@ CREATE TABLE Workers (
     CHECK (work_age >= 0),
     CHECK (length(name) > 0),
     CHECK (jobs > 0),
-    CHECK (projects > 0),
+    CHECK (projects >= 0),
     CHECK (average_project_days > 0),
     CHECK (num_of_teams >= 0)
     -- CHECK (education 0 '无' or education 1 '小学'
