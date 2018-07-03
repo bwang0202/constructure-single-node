@@ -19,10 +19,8 @@
 
 	<script>
 		$(function(){
-		    $(".dropdown-menu li a").click(function(){
-		        $(".drop-down-btn:first-child").text($(this).text());
-		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("hometown", $(this).text());
+		    $("#slt_mjr").change(function () {
+		        sessionStorage.setItem("hometown", $(this).val());
 		    });
 		});
 	</script>
@@ -60,23 +58,20 @@
 					<p>家乡：</p>
 				</div>
 			</div>
-
-			<div class="dropdown text-center">
-			    <button class="drop-down-btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">北京</a></li>
-			    	<li><a href="#">天津</a></li>
-			    	<li><a href="#">河北</a></li>
-			    	<li><a href="#">山西</a></li>
-			    	<li><a href="#">内蒙古</a></li>
-			    	<li><a href="#">辽宁</a></li>
-			    	<li><a href="#">吉林</a></li>
-			    	<li><a href="#">黑龙江</a></li>
-			    	<li><a href="#">上海</a></li>
-			    </ul>
+			<div align="center">
+				<select id="slt_mjr" name="slt_mjr">
+				    <option value="">Please Select</option>
+				    <option value="北京">北京</option>
+				    <option value="天津">天津</option>
+				    <option value="河北">河北</option>
+				    <option value="山西">山西</option>
+				    <option value="内蒙古">内蒙古</option>
+				    <option value="辽宁">辽宁</option>
+				    <option value="吉林">吉林</option>
+				    <option value="黑龙江">黑龙江</option>
+				    <option value="上海">上海</option>
+				</select>
 			</div>
-
 		</div>
 	</section>
 	<!-- /Section: quiz-content -->

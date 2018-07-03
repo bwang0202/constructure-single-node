@@ -19,10 +19,8 @@
 
 	<script>
 		$(function(){
-		    $(".dropdown-menu li a").click(function(){
-		        $(".drop-down-btn:first-child").text($(this).text());
-		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("average_project_days", $(this).text());    			
+		    $("#slt_mjr").change(function () {
+		        sessionStorage.setItem("average_project_days", $(this).val());
 		    });
 		});
 	</script>
@@ -60,17 +58,15 @@
 				</div>
 			</div>
 
-			<div class="dropdown text-center" style="margin-bottom: 150px">
-			    <button class="drop-down-btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">1个月之内</a></li>
-			    	<li><a href="#">1个月 ~ 半年</a></li>
-			    	<li><a href="#">半年 ~ 一年</a></li>
-			    	<li><a href="#">一年以上</a></li>
-			    </ul>
+			<div align="center">
+				<select id="slt_mjr" name="slt_mjr">
+				    <option value="">Please Select</option>
+				    <option value="1个月之内">1个月之内</option>
+				    <option value="1个月 ~ 半年">1个月 ~ 半年</option>
+				    <option value="半年 ~ 一年">半年 ~ 一年</option>
+				    <option value="一年以上">一年以上</option>
+				</select>
 			</div>
-
 		</div>
 	</section>
 	<!-- /Section: quiz-content -->

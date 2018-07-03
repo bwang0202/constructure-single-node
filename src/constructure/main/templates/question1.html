@@ -20,15 +20,7 @@
 	<script>
 		$(function(){
 			$("#slt_mjr").change(function () {
-		        //alert($(this).val());
-		        var dropselvalue = -1;
-		        if ($("#bap_Mjr").val()) {
-		            dropselvalue = 1;
-		        }
-
-		        if (window.sessionStorage) {
-		            sessionStorage.setItem("age", $(this).val());
-		        }
+		        sessionStorage.setItem("age", $(this).val());
 		    });
 		});
 	</script>
@@ -75,7 +67,6 @@
 				    <option value="40 - 49">40 - 49</option>
 				    <option value="> 50">> 50</option>
 				</select>
-
 			</div>
 		</div>
 	</section>

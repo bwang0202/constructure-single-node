@@ -19,10 +19,8 @@
 
 	<script>
 		$(function(){
-		    $(".dropdown-menu li a").click(function(){
-		        $(".drop-down-btn:first-child").text($(this).text());
-		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("jobs", $(this).text());    			
+		    $("#slt_mjr").change(function () {
+		        sessionStorage.setItem("jobs", $(this).val());
 		    });
 		});
 	</script>
@@ -61,17 +59,15 @@
 				</div>
 			</div>
 
-			<div class="dropdown text-center" style="margin-bottom: 150px">
-			    <button class="drop-down-btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">1 种</a></li>
-			    	<li><a href="#">2 种</a></li>
-			    	<li><a href="#">3 种</a></li>
-			    	<li><a href="#">> 3 种</a></li>
-			    </ul>
+			<div align="center">
+				<select id="slt_mjr" name="slt_mjr">
+				    <option value="">Please Select</option>
+				    <option value="1 种">1 种</option>
+				    <option value="2 种">2 种</option>
+				    <option value="3 种">3 种</option>
+				    <option value="> 3 种">> 3 种</option>
+				</select>
 			</div>
-
 		</div>
 	</section>
 	<!-- /Section: quiz-content -->

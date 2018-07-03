@@ -19,10 +19,8 @@
 
 	<script>
 		$(function(){
-		    $(".dropdown-menu li a").click(function(){
-		        $(".drop-down-btn:first-child").text($(this).text());
-		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("num_of_teams", $(this).text());    			
+		    $("#slt_mjr").change(function () {
+		        sessionStorage.setItem("num_of_teams", $(this).val());
 		    });
 		});
 	</script>
@@ -60,16 +58,14 @@
 				</div>
 			</div>
 
-			<div class="dropdown text-center" style="margin-bottom: 150px">
-			    <button class="drop-down-btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">我一直跟着同一个工头/劳务公司</a></li>
-			    	<li><a href="#">我更换过三、五个”东家“/劳务公司</a></li>
-			    	<li><a href="#">我经历过多于五个工头/劳务公司</a></li>
-			    </ul>
+			<div align="center">
+				<select id="slt_mjr" name="slt_mjr">
+				    <option value="">Please Select</option>
+				    <option value="我一直跟着同一个工头/劳务公司">我一直跟着同一个工头/劳务公司</option>
+				    <option value="我更换过三、五个”东家“/劳务公司">我更换过三、五个”东家“/劳务公司</option>
+				    <option value="我经历过多于五个工头/劳务公司">我经历过多于五个工头/劳务公司</option>
+				</select>
 			</div>
-
 		</div>
 	</section>
 	<!-- /Section: quiz-content -->

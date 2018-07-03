@@ -19,10 +19,8 @@
 
 	<script>
 		$(function(){
-		    $(".dropdown-menu li a").click(function(){
-		        $(".drop-down-btn:first-child").text($(this).text());
-		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("speciality", $(this).text());    			
+			$("#slt_mjr").change(function () {
+		        sessionStorage.setItem("speciality", $(this).val());
 		    });
 		});
 	</script>
@@ -60,24 +58,25 @@
 				</div>
 			</div>
 
-			<div class="dropdown text-center">
-			    <button class="drop-down-btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">砌筑工/泥工/瓦工</a></li>
-			    	<li><a href="#">木工</a></li>
-			    	<li><a href="#">架子工</a></li>
-			    	<li><a href="#">电焊工</a></li>
-			    	<li><a href="#">钢筋工</a></li>
-			    	<li><a href="#">抹灰工</a></li>
-			    	<li><a href="#">钢架构安装工</a></li>
-			    	<li><a href="#">油漆工</a></li>
-			    	<li><a href="#">管道工</a></li>
-			    	<li><a href="#">防水工</a></li>
-			    	<li><a href="#">水电工</a></li>
-			    </ul>
+			<div align="center">
+				<select id="slt_mjr" name="slt_mjr">
+				    <option value="">Please Select</option>
+				    <option value="砌筑工/泥工/瓦工">砌筑工/泥工/瓦工</option>
+				    <option value="木工">木工</option>
+				    <option value="架子工">架子工</option>
+				    <option value="电焊工">电焊工</option>
+				    <option value="木工">木工</option>
+				    <option value="架子工">架子工</option>
+				    <option value="电焊工">电焊工</option>
+				    <option value="钢筋工">钢筋工</option>
+				    <option value="抹灰工">抹灰工</option>
+				    <option value="钢架构安装工">钢架构安装工</option>
+				    <option value="油漆工">油漆工</option>
+				    <option value="管道工">管道工</option>
+				    <option value="防水工">防水工</option>
+				    <option value="水电工">水电工</option>
+				</select>
 			</div>
-
 		</div>
 	</section>
 	<!-- /Section: quiz-content -->

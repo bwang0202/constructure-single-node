@@ -19,10 +19,8 @@
 
 	<script>
 		$(function(){
-		    $(".dropdown-menu li a").click(function(){
-		        $(".drop-down-btn:first-child").text($(this).text());
-		    	$(".drop-down-btn:first-child").val($(this).text());
-		    	sessionStorage.setItem("type_of_projects", $(this).text());    			
+		    $("#slt_mjr").change(function () {
+		        sessionStorage.setItem("type_of_projects", $(this).val());
 		    });
 		});
 	</script>
@@ -60,17 +58,15 @@
 				</div>
 			</div>
 
-			<div class="dropdown text-center" style="margin-bottom: 150px">
-			    <button class="drop-down-btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">单体住宅</a></li>
-			    	<li><a href="#">住宅小区</a></li>
-			    	<li><a href="#">公共建筑</a></li>
-			    	<li><a href="#">办公楼</a></li>
-			    </ul>
+			<div align="center">
+				<select id="slt_mjr" name="slt_mjr">
+				    <option value="">Please Select</option>
+				    <option value="单体住宅">单体住宅</option>
+				    <option value="住宅小区">住宅小区</option>
+				    <option value="公共建筑">公共建筑</option>
+				    <option value="办公楼">办公楼</option>
+				</select>
 			</div>
-
 		</div>
 	</section>
 	<!-- /Section: quiz-content -->
