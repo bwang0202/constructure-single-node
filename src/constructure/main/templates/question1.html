@@ -27,7 +27,7 @@
 		        }
 
 		        if (window.sessionStorage) {
-		            sessionStorage.setItem("age", dropselvalue);
+		            sessionStorage.setItem("age", $(this).val());
 		        }
 		    });
 		});
@@ -70,9 +70,10 @@
 			<div align="center">
 				<select id="slt_mjr" name="slt_mjr">
 				    <option value="">Please Select</option>
-				    <option value="BA in Arts,Culture&Heritage Ma">BAACHM</option>
-				    <option id="bap_Mjr" class="bap_Mjr" value="Bachelor of Arts in Persian">BAP</option>
-				    <option value="Bachelor of Bus Adminstration">BBA</option>
+				    <option value="20 - 29">20 - 29</option>
+				    <option value="30 - 39">30 - 39</option>
+				    <option value="40 - 49">40 - 49</option>
+				    <option value="> 50">> 50</option>
 				</select>
 
 			</div>
