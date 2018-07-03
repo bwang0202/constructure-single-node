@@ -19,11 +19,17 @@
 
 	<script>
 		$(function(){
-			$(".dropdown-menu li a").click(function(){
-		    	$(".drop-down-btn:first-child").text($(this).text());
-		     	$(".drop-down-btn:first-child").val($(this).text());
-		     	sessionStorage.setItem("age", $(this).text());
-		  	});
+			$("#slt_mjr").change(function () {
+		        //alert($(this).val());
+		        var dropselvalue = -1;
+		        if ($("#bap_Mjr").val()) {
+		            dropselvalue = 1;
+		        }
+
+		        if (window.sessionStorage) {
+		            sessionStorage.setItem("age", dropselvalue);
+		        }
+		    });
 		});
 	</script>
 
@@ -61,15 +67,13 @@
 				</div>
 			</div>
 
-			<div class="dropdown text-center">
-			    <button class="drop-down-btn btn-primary dropdown-toggle " type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">请选择：<span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-			    	<li><a href="#">20 - 29</a></li>
-			    	<li><a href="#">30 - 39</a></li>
-			    	<li><a href="#">40 - 49</a></li>
-			    	<li><a href="#">> 50</a></li>
-			    </ul>
+			<div align="center">
+				<select id="slt_mjr" name="slt_mjr">
+				    <option value="">Please Select</option>
+				    <option value="BA in Arts,Culture&Heritage Ma">BAACHM</option>
+				    <option id="bap_Mjr" class="bap_Mjr" value="Bachelor of Arts in Persian">BAP</option>
+				    <option value="Bachelor of Bus Adminstration">BBA</option>
+				</select>
 			</div>
 
 		</div>
