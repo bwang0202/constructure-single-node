@@ -65,6 +65,8 @@ def compute_match_for_worker(worker_id):
             score += y.score * y.weight
             if y.score:
                 notes.append(y.keyword.decode('utf8'))
+        if not notes:
+            notes = ["新伙伴"]
         insert_match_result(x[0], worker_id, score, ",".join(notes))
 
 def match_worker_team_helper(worker_id, team_id):
@@ -110,7 +112,7 @@ def match_team_specialty_workers(team_id, specialty):
 
 
 def get_worker_info(worker_id):
-    (name, picture, specialty) = get_worker_specialty_helper(worker_id)
+    (worker_name, picture, specialty) = get_worker_specialty_helper(worker_id)
     matched_workers = []
     for (name2, worker_id2, specialty2, score2, note2) in get_matched_workers_for_worker(worker_id):
         matched_workers.append({'name': name2, 'worker_id': worker_id2,
@@ -122,7 +124,7 @@ def get_worker_info(worker_id):
     for (team_id, name) in get_ex_teams_for_worker(worker_id):
         ex_teams.append({'name':name, 'team_id': team_id})
     return {
-        'name': name,
+        'name': worker_name,
         'specialty': specialty,
         'picture': picture,
         'matched_workers': matched_workers,
