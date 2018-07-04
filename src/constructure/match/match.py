@@ -67,7 +67,7 @@ def compute_match_for_worker(worker_id):
                 notes.append(y.keyword.decode('utf8'))
         if not notes:
             notes = ["新伙伴"]
-        insert_match_result(x[0], worker_id, score, ",".join(notes))
+        insert_match_result(x[0], worker_id, score, "|".join(notes))
 
 def match_worker_team_helper(worker_id, team_id):
     hommies = get_team_homies(worker_id, team_id)
@@ -91,7 +91,7 @@ def compute_match_for_worker_team(worker_id, team_id):
             notes.append(y.keyword)
         if not notes:
             notes = ["新伙伴"]
-    return (score, ",".join(notes))
+    return (score, "|".join(notes))
 
 def match_team_specialty_workers(team_id, specialty):
     # get unhired workers:
