@@ -89,7 +89,7 @@ def compute_match_for_worker_team(worker_id, team_id):
         score += y.score * y.weight
         if y.score:
             notes.append(y.keyword)
-        if not notes:
+        if len(notes) == 0:
             notes = [u"新伙伴"]
     return (score, u"|".join(notes))
 
