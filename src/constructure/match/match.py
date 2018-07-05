@@ -110,7 +110,7 @@ def match_team_specialty_workers(team_id, specialty):
             'notes': notes
             })
 
-    worker_ccis = sorted(worker_ccis, key=lambda x: x['cci'])
+    worker_ccis = sorted(worker_ccis, key=lambda x: 0 - x['cci'])
 
     return worker_ccis
 
