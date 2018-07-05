@@ -37,12 +37,12 @@ def _match_hometown(hometown1, hometown2):
         result.append(hometown1[i])
     return MatchEntry(0 if not result else 100,
         MatchWorkersConstants.hometown,
-        "老乡")
+        u"老乡")
 
 def _match_same_experience(same_experiences):
     return MatchEntry(0 if not same_experiences else 100,
         MatchWorkersConstants.teammates,
-        "搭档")
+        u"搭档")
 
 def match_workers(worker_id1, worker_id2):
     (_, _, hometown1) = get_worker_info_helper(worker_id1)
@@ -64,9 +64,9 @@ def compute_match_for_worker(worker_id):
         for y in match_entries:
             score += y.score * y.weight
             if y.score:
-                notes.append(y.keyword.decode('utf8'))
+                notes.append(y.keyword)
         if not notes:
-            notes = ["新伙伴"]
+            notes = [u"新伙伴"]
         insert_match_result(x[0], worker_id, score, "|".join(notes))
 
 def match_worker_team_helper(worker_id, team_id):
@@ -90,8 +90,8 @@ def compute_match_for_worker_team(worker_id, team_id):
         if y.score:
             notes.append(y.keyword)
         if not notes:
-            notes = ["新伙伴"]
-    return (score, "|".join(notes))
+            notes = [u"新伙伴"]
+    return (score, u"|".join(notes))
 
 def match_team_specialty_workers(team_id, specialty):
     # get unhired workers:
