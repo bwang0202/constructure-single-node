@@ -413,7 +413,7 @@ def get_matched_workers_for_worker(worker_id):
 def get_ex_projects_for_worker(worker_id):
     with DatabaseConnection() as conn:
         return conn.execute("""
-            SELECT name, picture
+            SELECT DISTINCT name, picture
             FROM Projects
             JOIN WorkerTeamProject USING (project_id)
             WHERE worker_id = ?
