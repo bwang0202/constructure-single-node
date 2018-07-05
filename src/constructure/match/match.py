@@ -75,11 +75,11 @@ def match_worker_team_helper(worker_id, team_id):
     cooperations = get_cooperation(worker_id, team_id)
 
     return [MatchEntry(100 if cooperations else 0,
-                MatchTeamsConstants.cooperation, "曾合作"),
+                MatchTeamsConstants.cooperation, u"曾合作"),
             MatchEntry(100 if teammates > 10 else teammates * 10,
-                MatchTeamsConstants.teammates, "旧搭档多"),
+                MatchTeamsConstants.teammates, u"旧搭档多"),
             MatchEntry(100 if hommies > 10 else hommies * 10,
-                MatchTeamsConstants.hometown, "老乡多")]
+                MatchTeamsConstants.hometown, u"老乡多")]
 
 def compute_match_for_worker_team(worker_id, team_id):
     match_entries = match_worker_team_helper(worker_id, team_id)
